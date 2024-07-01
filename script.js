@@ -17,7 +17,7 @@ document.getElementById('container').appendChild(renderer.domElement);
 
 // Load the HDR environment map
 const rgbeLoader = new THREE.RGBELoader();
-rgbeLoader.load('path/to/your/hdr/file.hdr', function(texture) {
+rgbeLoader.load('assets/brown_photostudio_02_1k.exr', function(texture) {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = texture;
     scene.background = texture;
