@@ -27,12 +27,46 @@ controls.screenSpacePanning = false; // No panning allowed
 controls.minDistance = 1; // Minimum zoom distance
 controls.maxDistance = 500; // Maximum zoom distance
 
+// Custom shader material to invert colors
+const invertColorShader = {
+    uniforms: THREE.UniformsUtils.merge([
+        THREE.UniformsLib['lights'],
+        {
+            'tDiffuse': { value: null }
+        }
+    ]),
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D tDiffuse;
+        varying vec2 vUv;
+        void main() {
+            vec4 color = texture2D(tDiffuse, vUv);
+            gl_FragColor = vec4(1.0 - color.rgb, color.a); // Invert the colors
+        }
+    `
+};
+
 // Load the model
 const loader = new THREE.GLTFLoader();
 loader.load(
     'assets/model.gltf',
     function (gltf) {
         const model = gltf.scene;
+
+        // Modify materials to use custom shader for color inversion
+        model.traverse(function (child) {
+            if (child.isMesh) {
+                child.material = new THREE.ShaderMaterial(invertColorShader);
+                child.material.lights = true;
+            }
+        });
+
         scene.add(model);
         animate();
     },
