@@ -25,10 +25,7 @@ loader.load(
     'assets/model.gltf',
     function (gltf) {
         const model = gltf.scene;
-
-        // Add the model to the scene
         scene.add(model);
-
         animate();
     },
     undefined,
