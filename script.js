@@ -1,14 +1,24 @@
 // script.js
 
+let camera, scene, renderer;
+let controls;
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let prevTime = performance.now();
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+
 // Create a scene
-const scene = new THREE.Scene();
+scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 5, 10); // Adjust camera position
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000); // Increase far clipping plane
+camera.position.set(0, 3, 10); // Adjust camera position slightly lower
 
 // Create a renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1); // Set background color to white
 renderer.shadowMap.enabled = true; // Enable shadows
@@ -49,41 +59,19 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
 
-            // Set camera position to center of the model and adjust controls target
-            controls.target.copy(boxCenter);
-            camera.position.copy(boxCenter);
-            camera.position.x += boxSize / 2.0;
-            camera.position.y += boxSize / 5.0;
-            camera.position.z += boxSize / 2.0;
+// Set camera position to center of the model and adjust controls target
+controls.getObject().position.copy(boxCenter);
+controls.getObject().position.x += boxSize / 2.0;
+controls.getObject().position.y += boxSize / 5.0;
+controls.getObject().position.z += boxSize / 2.0;
 
-            // Set OrbitControls constraints
-            controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
-            controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
-            controls.maxAzimuthAngle = Infinity;
-
-            // Define bounding box limits for camera
-            const minPan = box.min.clone().sub(boxCenter);
-            const maxPan = box.max.clone().sub(boxCenter);
-
-            controls.addEventListener('change', function() {
-                const offset = camera.position.clone().sub(controls.target);
-
-                // Constrain the camera within the box limits
-                offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-                offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-                offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
-
-                camera.position.copy(controls.target).add(offset);
-                camera.lookAt(controls.target);
-            });
-
-            animate();
-        },
-        undefined,
-        function (error) {
-            console.error(error);
-        }
-    );
+animate();
+},
+undefined,
+function (error) {
+    console.error(error);
+}
+);
 });
 
 // Add ambient light to the scene
@@ -104,20 +92,93 @@ directionalLight.shadow.camera.top = 10;
 directionalLight.shadow.camera.bottom = -10;
 scene.add(directionalLight);
 
-// Add OrbitControls for touch interaction
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Enable smooth damping
-controls.dampingFactor = 0.25; // Damping factor
-controls.screenSpacePanning = true; // Allow panning
-controls.minDistance = 0.1; // Minimum zoom distance
-controls.maxDistance = 1000; // Maximum zoom distance
-controls.autoRotate = true; // Enable auto rotation
-controls.autoRotateSpeed = 1.0; // Auto rotation speed
+// Add PointerLockControls for movement
+controls = new THREE.PointerLockControls(camera, document.body);
+
+const startButton = document.getElementById('startButton');
+startButton.addEventListener('click', function() {
+    controls.lock();
+});
+
+controls.addEventListener('lock', function() {
+    startButton.style.display = 'none';
+});
+
+controls.addEventListener('unlock', function() {
+    startButton.style.display = 'block';
+});
+
+scene.add(controls.getObject());
+
+const onKeyDown = function(event) {
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = true;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = true;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = true;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = true;
+            break;
+    }
+};
+
+const onKeyUp = function(event) {
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = false;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = false;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = false;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = false;
+            break;
+    }
+};
+
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
 
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    controls.update(); // Update controls
+
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
+
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveLeft) - Number(moveRight);
+    direction.normalize();
+
+    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+    controls.moveRight(-velocity.x * delta);
+    controls.moveForward(-velocity.z * delta);
+
+    controls.getObject().position.y = 3; // Fixed vertical position
+
+    prevTime = time;
+
     renderer.render(scene, camera);
 }
 
