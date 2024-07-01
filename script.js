@@ -49,6 +49,40 @@ loader.load(
     function (gltf) {
         const model = gltf.scene;
         scene.add(model);
+
+        // Calculate model bounding box
+        const box = new THREE.Box3().setFromObject(model);
+        const boxSize = box.getSize(new THREE.Vector3()).length();
+        const boxCenter = box.getCenter(new THREE.Vector3());
+
+        // Set camera position to center of the model and adjust controls target
+        controls.target.copy(boxCenter);
+        camera.position.copy(boxCenter);
+        camera.position.x += boxSize / 2.0;
+        camera.position.y += boxSize / 5.0;
+        camera.position.z += boxSize / 2.0;
+
+        // Set OrbitControls constraints
+        controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation to 90 degrees
+        controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
+        controls.maxAzimuthAngle = Infinity;
+        
+        // Define bounding box limits for camera
+        const minPan = box.min.clone().sub(boxCenter);
+        const maxPan = box.max.clone().sub(boxCenter);
+        
+        controls.addEventListener('change', function() {
+            const offset = camera.position.clone().sub(controls.target);
+
+            // Constrain the camera within the box limits
+            offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
+            offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+            offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
+
+            camera.position.copy(controls.target).add(offset);
+            camera.lookAt(controls.target);
+        });
+
         animate();
     },
     undefined,
