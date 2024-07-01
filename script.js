@@ -5,7 +5,7 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 2, 5); // Adjust camera position
+camera.position.set(0, 5, 10); // Adjust camera position higher
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -40,7 +40,7 @@ controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
-controls.maxPolarAngle = Math.PI; // Allow full vertical rotation
+controls.maxPolarAngle = Math.PI / 2.5; // Tighter vertical rotation limit
 
 // Load the model
 const loader = new THREE.GLTFLoader();
@@ -69,7 +69,7 @@ loader.load(
         camera.position.z += boxSize / 2.0;
 
         // Set OrbitControls constraints
-        controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation to 90 degrees
+        controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
         controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
         controls.maxAzimuthAngle = Infinity;
         
