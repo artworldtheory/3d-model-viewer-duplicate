@@ -11,7 +11,41 @@ camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1); // Set background color to white
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 document.getElementById('container').appendChild(renderer.domElement);
+
+// Load the HDR environment map
+const rgbeLoader = new THREE.RGBELoader();
+rgbeLoader.load('path/to/your/hdr/file.hdr', function(texture) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = texture;
+    scene.background = texture;
+
+    // Load the model
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+        'assets/model.gltf',
+        function (gltf) {
+            const model = gltf.scene;
+
+            // Enhance materials
+            model.traverse(function (child) {
+                if (child.isMesh) {
+                    child.material.envMap = texture;
+                    child.material.needsUpdate = true;
+                }
+            });
+
+            scene.add(model);
+            animate();
+        },
+        undefined,
+        function (error) {
+            console.error(error);
+        }
+    );
+});
 
 // Add ambient light to the scene
 const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light, increased intensity
@@ -39,21 +73,6 @@ controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
 controls.maxPolarAngle = Math.PI; // Allow full vertical rotation
-
-// Load the model
-const loader = new THREE.GLTFLoader();
-loader.load(
-    'assets/model.gltf',
-    function (gltf) {
-        const model = gltf.scene;
-        scene.add(model);
-        animate();
-    },
-    undefined,
-    function (error) {
-        console.error(error);
-    }
-);
 
 // Animation loop
 function animate() {
