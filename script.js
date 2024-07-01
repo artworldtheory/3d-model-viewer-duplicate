@@ -19,6 +19,14 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
 
+// Add OrbitControls for touch interaction
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Enable smooth damping
+controls.dampingFactor = 0.25; // Damping factor
+controls.screenSpacePanning = false; // No panning allowed
+controls.minDistance = 1; // Minimum zoom distance
+controls.maxDistance = 500; // Maximum zoom distance
+
 // Load the model
 const loader = new THREE.GLTFLoader();
 loader.load(
@@ -37,6 +45,7 @@ loader.load(
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+    controls.update(); // Update controls
     renderer.render(scene, camera);
 }
 
