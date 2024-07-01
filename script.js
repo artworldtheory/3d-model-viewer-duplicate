@@ -15,9 +15,9 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
 document.getElementById('container').appendChild(renderer.domElement);
 
-// Load the HDR environment map
-const rgbeLoader = new THREE.RGBELoader();
-rgbeLoader.load('assets/brown_photostudio_02_1k.exr', function(texture) {
+// Load the EXR environment map
+const exrLoader = new THREE.EXRLoader();
+exrLoader.load('assets/brown_photostudio_02_1k.exr', function(texture) {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = texture;
     scene.background = texture;
