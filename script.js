@@ -5,7 +5,7 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 5, 10); // Adjust camera position higher
+camera.position.set(0, 4.5, 10); // Adjust camera position slightly lower
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -40,7 +40,12 @@ controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
-controls.maxPolarAngle = Math.PI / 2.5; // Tighter vertical rotation limit
+controls.maxPolarAngle = Math.PI / 2; // Restrict vertical rotation to a flat plane
+
+// Fix the vertical position of the camera
+controls.addEventListener('change', function() {
+    camera.position.y = 4.5; // Ensure the camera's vertical position remains fixed
+});
 
 // Load the model
 const loader = new THREE.GLTFLoader();
@@ -63,16 +68,9 @@ loader.load(
 
         // Set camera position to center of the model and adjust controls target
         controls.target.copy(boxCenter);
-        camera.position.copy(boxCenter);
-        camera.position.x += boxSize / 2.0;
-        camera.position.y += boxSize / 5.0;
-        camera.position.z += boxSize / 2.0;
+        camera.position.x = boxCenter.x + boxSize / 2.0;
+        camera.position.z = boxCenter.z + boxSize / 2.0;
 
-        // Set OrbitControls constraints
-        controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
-        controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
-        controls.maxAzimuthAngle = Infinity;
-        
         // Define bounding box limits for camera
         const minPan = box.min.clone().sub(boxCenter);
         const maxPan = box.max.clone().sub(boxCenter);
@@ -82,7 +80,7 @@ loader.load(
 
             // Constrain the camera within the box limits
             offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-            offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+            offset.y = 4.5; // Ensure the camera's vertical position remains fixed
             offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
 
             camera.position.copy(controls.target).add(offset);
