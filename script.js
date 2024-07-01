@@ -21,7 +21,8 @@ pmremGenerator.compileEquirectangularShader();
 
 // Load HDR environment map
 const rgbeLoader = new THREE.RGBELoader();
-rgbeLoader.load('path/to/your/hdr/environment.hdr', function(texture) {
+rgbeLoader.setDataType(THREE.UnsignedByteType); // Fix CORB issue by setting data type
+rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
     scene.environment = envMap;
     texture.dispose();
