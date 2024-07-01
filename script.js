@@ -11,52 +11,18 @@ camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1); // Set background color to white
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1;
 document.getElementById('container').appendChild(renderer.domElement);
 
-// Load the EXR environment map
-const exrLoader = new THREE.EXRLoader();
-exrLoader.load('assets/brown_photostudio_02_1k.exr', function(texture) {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-    scene.environment = texture;
-    scene.background = texture;
-
-    // Load the model
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-        'assets/model.gltf',
-        function (gltf) {
-            const model = gltf.scene;
-
-            // Enhance materials
-            model.traverse(function (child) {
-                if (child.isMesh) {
-                    child.material.envMap = texture;
-                    child.material.needsUpdate = true;
-                }
-            });
-
-            scene.add(model);
-            animate();
-        },
-        undefined,
-        function (error) {
-            console.error(error);
-        }
-    );
-});
-
 // Add ambient light to the scene
-const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light, increased intensity
+const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light, increased intensity
 scene.add(ambientLight);
 
 // Add directional lights to the scene
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 2);
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
 directionalLight1.position.set(5, 10, 7.5);
 scene.add(directionalLight1);
 
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
 directionalLight2.position.set(-5, -10, -7.5);
 scene.add(directionalLight2);
 
@@ -73,6 +39,21 @@ controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
 controls.maxPolarAngle = Math.PI; // Allow full vertical rotation
+
+// Load the model
+const loader = new THREE.GLTFLoader();
+loader.load(
+    'assets/model.gltf',
+    function (gltf) {
+        const model = gltf.scene;
+        scene.add(model);
+        animate();
+    },
+    undefined,
+    function (error) {
+        console.error(error);
+    }
+);
 
 // Animation loop
 function animate() {
