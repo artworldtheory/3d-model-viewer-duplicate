@@ -39,6 +39,8 @@ controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
 controls.maxPolarAngle = Math.PI; // Allow full vertical rotation
+controls.autoRotate = true; // Enable auto rotation
+controls.autoRotateSpeed = 1.0; // Auto rotation speed
 
 // Load the model
 const loader = new THREE.GLTFLoader();
