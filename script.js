@@ -5,31 +5,33 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+camera.position.set(0, 2, 5); // Adjust camera position
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1); // Set background color to white
+renderer.shadowMap.enabled = true; // Enable shadows
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Shadow mapping type
 document.getElementById('container').appendChild(renderer.domElement);
 
 // Add ambient light to the scene
-const ambientLight = new THREE.AmbientLight(0xffffff, 1); // Soft white light, increased intensity
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light, lower intensity
 scene.add(ambientLight);
 
-// Add directional lights to the scene
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
-directionalLight1.position.set(5, 10, 7.5);
-scene.add(directionalLight1);
-
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
-directionalLight2.position.set(-5, -10, -7.5);
-scene.add(directionalLight2);
-
-// Add point light to the scene
-const pointLight = new THREE.PointLight(0xffffff, 2, 100);
-pointLight.position.set(0, 10, 0);
-scene.add(pointLight);
+// Add directional light to the scene
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+directionalLight.castShadow = true; // Enable shadows for the light
+directionalLight.shadow.mapSize.width = 2048; // Shadow map resolution
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
+directionalLight.shadow.camera.left = -10;
+directionalLight.shadow.camera.right = 10;
+directionalLight.shadow.camera.top = 10;
+directionalLight.shadow.camera.bottom = -10;
+scene.add(directionalLight);
 
 // Add OrbitControls for touch interaction
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -39,8 +41,6 @@ controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
 controls.maxPolarAngle = Math.PI; // Allow full vertical rotation
-controls.autoRotate = true; // Enable auto rotation
-controls.autoRotateSpeed = 1.0; // Auto rotation speed
 
 // Load the model
 const loader = new THREE.GLTFLoader();
@@ -48,6 +48,12 @@ loader.load(
     'assets/model.gltf',
     function (gltf) {
         const model = gltf.scene;
+        model.traverse(function (node) {
+            if (node.isMesh) {
+                node.castShadow = true; // Enable shadows for meshes
+                node.receiveShadow = true;
+            }
+        });
         scene.add(model);
 
         // Calculate model bounding box
