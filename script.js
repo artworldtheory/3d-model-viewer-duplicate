@@ -19,10 +19,10 @@ document.getElementById('container').appendChild(renderer.domElement);
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 pmremGenerator.compileEquirectangularShader();
 
-// Load HDR environment map
+// Use jsDelivr to serve the HDR environment map
 const rgbeLoader = new THREE.RGBELoader();
 rgbeLoader.setDataType(THREE.UnsignedByteType); // Fix CORB issue by setting data type
-rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
+rgbeLoader.load('https://cdn.jsdelivr.net/gh/artworldtheory/3d-model-viewer/assets/metro_noord_1k.hdr', function(texture) {
     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
     scene.environment = envMap;
     texture.dispose();
@@ -68,22 +68,22 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             controls.addEventListener('change', function() {
                 const offset = camera.position.clone().sub(controls.target);
 
-                // Constrain the camera within the box limits
-                offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-                offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-                offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
+// Constrain the camera within the box limits
+offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
+offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
 
-                camera.position.copy(controls.target).add(offset);
-                camera.lookAt(controls.target);
-            });
+camera.position.copy(controls.target).add(offset);
+camera.lookAt(controls.target);
+});
 
-            animate();
-        },
-        undefined,
-        function (error) {
-            console.error(error);
-        }
-    );
+animate();
+},
+undefined,
+function (error) {
+console.error(error);
+}
+);
 });
 
 // Add ambient light to the scene
@@ -115,45 +115,45 @@ controls.autoRotate = true; // Enable auto rotation
 controls.autoRotateSpeed = 1.0; // Auto rotation speed
 
 const onKeyDown = function(event) {
-    switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-            moveForward = true;
-            break;
-        case 'ArrowLeft':
-        case 'KeyA':
-            moveLeft = true;
-            break;
-        case 'ArrowDown':
-        case 'KeyS':
-            moveBackward = true;
-            break;
-        case 'ArrowRight':
-        case 'KeyD':
-            moveRight = true;
-            break;
-    }
+switch (event.code) {
+case 'ArrowUp':
+case 'KeyW':
+moveForward = true;
+break;
+case 'ArrowLeft':
+case 'KeyA':
+moveLeft = true;
+break;
+case 'ArrowDown':
+case 'KeyS':
+moveBackward = true;
+break;
+case 'ArrowRight':
+case 'KeyD':
+moveRight = true;
+break;
+}
 };
 
 const onKeyUp = function(event) {
-    switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-            moveForward = false;
-            break;
-        case 'ArrowLeft':
-        case 'KeyA':
-            moveLeft = false;
-            break;
-        case 'ArrowDown':
-        case 'KeyS':
-            moveBackward = false;
-            break;
-        case 'ArrowRight':
-        case 'KeyD':
-            moveRight = false;
-            break;
-    }
+switch (event.code) {
+case 'ArrowUp':
+case 'KeyW':
+moveForward = false;
+break;
+case 'ArrowLeft':
+case 'KeyA':
+moveLeft = false;
+break;
+case 'ArrowDown':
+case 'KeyS':
+moveBackward = false;
+break;
+case 'ArrowRight':
+case 'KeyD':
+moveRight = false;
+break;
+}
 };
 
 document.addEventListener('keydown', onKeyDown);
@@ -161,37 +161,36 @@ document.addEventListener('keyup', onKeyUp);
 
 // Animation loop
 function animate() {
-    requestAnimationFrame(animate);
+requestAnimationFrame(animate);
 
-    const time = performance.now();
-    const delta = (time - prevTime) / 1000;
+const time = performance.now();
+const delta = (time - prevTime) / 1000;
 
-    velocity.x -= velocity.x * 10.0 * delta;
-    velocity.z -= velocity.z * 10.0 * delta;
+velocity.x -= velocity.x * 10.0 * delta;
+velocity.z -= velocity.z * 10.0 * delta;
 
-    direction.z = Number(moveForward) - Number(moveBackward);
-    direction.x = Number(moveLeft) - Number(moveRight);
-    direction.normalize();
+direction.z = Number(moveForward) - Number(moveBackward);
+direction.x = Number(moveLeft) - Number(moveRight);
+direction.normalize();
 
-    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
+controls.moveRight(-velocity.x * delta);
+controls.moveForward(-velocity.z * delta);
 
-    controls.getObject().position.y = 3; // Fixed vertical position
+controls.getObject().position.y = 3; // Fixed vertical position
 
-    prevTime = time;
+prevTime = time;
 
-    renderer.render(scene, camera);
+renderer.render(scene, camera);
 }
 
 animate();
 
 // Handle window resize
 window.addEventListener('resize', function() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
