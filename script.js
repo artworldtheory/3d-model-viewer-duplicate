@@ -5,7 +5,7 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 5, 10); // Adjust camera position
+camera.position.set(0, 4, 10); // Adjust camera position slightly down
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -111,8 +111,7 @@ controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
-controls.autoRotate = true; // Enable auto rotation
-controls.autoRotateSpeed = 1.0; // Auto rotation speed
+controls.autoRotate = false; // Disable auto rotation
 
 // Animation loop
 function animate() {
