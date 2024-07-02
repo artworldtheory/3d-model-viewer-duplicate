@@ -81,7 +81,7 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
         },
         undefined,
         function (error) {
-            console.error(error);
+            console.error('Error loading model:', error);
         }
     );
 });
