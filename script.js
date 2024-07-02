@@ -10,110 +10,186 @@
     </style>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/examples/js/loaders/RGBELoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/pmrem/PMREMGenerator.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
-        // Scene setup
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xffffff);
-
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 10);
-
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Add ambient light to the scene
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
+        // Load HDR environment map
+        new THREE.RGBELoader()
+            .setPath('assets/')
+            .load('metro_noord_1k.hdr', function (texture) {
+                const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                pmremGenerator.dispose();
 
-        // Add directional light to the scene
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 10, 7.5);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 50;
-        directionalLight.shadow.camera.left = -10;
-        directionalLight.shadow.camera.right = 10;
-        directionalLight.shadow.camera.top = 10;
-        directionalLight.shadow.camera.bottom = -10;
-        scene.add(directionalLight);
+                scene.background = envMap;
+                scene.environment = envMap;
 
-        // Add OrbitControls for interaction
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.25;
-        controls.screenSpacePanning = true;
-        controls.minDistance = 0.1;
-        controls.maxDistance = 1000;
-        controls.autoRotate = false;
-        controls.maxPolarAngle = Math.PI / 2.5;
+                // Load GLTF model
+                const loader = new THREE.GLTFLoader();
+                loader.load(
+                    'assets/model.glb',
+                    function (gltf) {
+                        const model = gltf.scene;
+                        scene.add(model);
 
-        // Load the GLB model
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-            'https://artworldtheory.github.io/3d-model-viewer/assets/model.glb',
-            function (gltf) {
-                const model = gltf.scene;
-                scene.add(model);
+                        // Compute bounding box for the model
+                        const box = new THREE.Box3().setFromObject(model);
+                        const boxCenter = box.getCenter(new THREE.Vector3());
+                        const boxSize = box.getSize(new THREE.Vector3()).length();
+                        
+// Center the model
+model.position.x += (model.position.x - boxCenter.x);
+model.position.y += (model.position.y - boxCenter.y);
+model.position.z += (model.position.z - boxCenter.z);
 
-                // Compute the bounding box of the model
-                const box = new THREE.Box3().setFromObject(model);
-                const boxCenter = box.getCenter(new THREE.Vector3());
-                const boxSize = box.getSize(new THREE.Vector3()).length();
+// Adjust the camera to fit the model
+camera.position.copy(boxCenter);
+camera.position.x += boxSize / 2.0;
+camera.position.y += boxSize / 5.0;
+controls.target.copy(boxCenter);
 
-                // Center the model
-                model.position.x += (model.position.x - boxCenter.x);
-                model.position.y += (model.position.y - boxCenter.y);
-                model.position.z += (model.position.z - boxCenter.z);
+// Constrain the camera within the box limits
+const minPan = box.min.clone().sub(boxCenter);
+const maxPan = box.max.clone().sub(boxCenter);
 
-                // Adjust the camera to fit the model
-                camera.position.copy(boxCenter);
-                camera.position.x += boxSize / 2.0;
-                camera.position.y += boxSize / 5.0;
-                controls.target.copy(boxCenter);
+controls.addEventListener('change', function () {
+    const offset = camera.position.clone().sub(controls.target);
+    offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
+    offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+    offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
+    camera.position.copy(controls.target).add(offset);
+    camera.lookAt(controls.target);
+});
 
-                // Constrain the camera within the box limits
-                const minPan = box.min.clone().sub(boxCenter);
-                const maxPan = box.max.clone().sub(boxCenter);
+animate();
+},
+undefined,
+function (error) {
+    console.error(error);
+}
+);
 
-                controls.addEventListener('change', function () {
-                    const offset = camera.position.clone().sub(controls.target);
-                    offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-                    offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-                    offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
-                    camera.position.copy(controls.target).add(offset);
-                    camera.lookAt(controls.target);
-                });
+// Add ambient light to the scene
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light, lower intensity
+scene.add(ambientLight);
 
-                animate();
-            },
-            undefined,
-            function (error) {
-                console.error(error);
-            }
-        );
+// Add directional light to the scene
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5);
+directionalLight.castShadow = true; // Enable shadows for the light
+directionalLight.shadow.mapSize.width = 2048; // Shadow map resolution
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
+directionalLight.shadow.camera.left = -10;
+directionalLight.shadow.camera.right = 10;
+directionalLight.shadow.camera.top = 10;
+directionalLight.shadow.camera.bottom = -10;
+scene.add(directionalLight);
 
-        // Handle window resize
-        window.addEventListener('resize', function () {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+// Add OrbitControls for touch interaction
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Enable smooth damping
+controls.dampingFactor = 0.25; // Damping factor
+controls.screenSpacePanning = true; // Allow panning
+controls.minDistance = 0.1; // Minimum zoom distance
+controls.maxDistance = 1000; // Maximum zoom distance
+controls.autoRotate = false; // Disable auto rotation
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
 
-        animate();
-    </script>
-</body>
-</html>
+const onKeyDown = function (event) {
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = true;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = true;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = true;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = true;
+            break;
+    }
+};
+
+const onKeyUp = function (event) {
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = false;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = false;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = false;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = false;
+            break;
+    }
+};
+
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
+
+let prevTime = performance.now();
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
+
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveLeft) - Number(moveRight);
+    direction.normalize();
+
+    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+    controls.target.x -= velocity.x * delta;
+    controls.target.z -= velocity.z * delta;
+
+    controls.update();
+    renderer.render(scene, camera);
+
+    prevTime = time;
+}
+
+animate();
+
+// Handle window resize
+window.addEventListener('resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
