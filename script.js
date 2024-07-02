@@ -4,8 +4,8 @@
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000); // Increase far clipping plane
-camera.position.set(0, 3, 10); // Adjust camera position slightly lower
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 2, 10); // Adjust camera position slightly lower
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -57,8 +57,7 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             camera.position.z += boxSize / 2.0;
 
             // Set OrbitControls constraints
-            controls.minPolarAngle = Math.PI / 2; // Restrict vertical rotation to prevent looking up or down
-            controls.maxPolarAngle = Math.PI / 2; // Restrict vertical rotation to prevent looking up or down
+            controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
             controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
             controls.maxAzimuthAngle = Infinity;
 
@@ -112,7 +111,8 @@ controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
-controls.autoRotate = false; // Disable auto rotation
+controls.autoRotate = true; // Enable auto rotation
+controls.autoRotateSpeed = 1.0; // Auto rotation speed
 
 // Animation loop
 function animate() {
