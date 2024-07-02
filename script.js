@@ -1,11 +1,9 @@
-// script.js
-
 // Create a scene
 const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, -5, 10); // Set the initial camera position much lower
+camera.position.set(0, -10, 10); // Set the initial camera position much lower
 
 // Log the initial camera position to verify
 console.log("Initial Camera Position:", camera.position);
