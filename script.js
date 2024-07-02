@@ -2,8 +2,8 @@
 const scene = new THREE.Scene();
 
 // Create a camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, -10, 10); // Set the initial camera position much lower
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, -20, 100); // Set the initial camera position much lower and further away
 
 // Log the initial camera position to verify
 console.log("Initial Camera Position:", camera.position);
@@ -45,48 +45,18 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             });
             scene.add(model);
 
-            // Check if the model is added to the scene
-            console.log("Model loaded and added to the scene");
-
             // Calculate model bounding box
             const box = new THREE.Box3().setFromObject(model);
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
 
-            // Log the bounding box size and center
-            console.log("Bounding Box Size:", boxSize);
-            console.log("Bounding Box Center:", boxCenter);
-
             // Set camera position to center of the model and adjust controls target
             controls.target.copy(boxCenter);
-            camera.position.copy(boxCenter);
-            camera.position.x += boxSize / 2.0;
-            camera.position.y -= boxSize / 4.0; // Adjust this value to move the camera lower
-            camera.position.z += boxSize / 2.0;
+            camera.position.set(boxCenter.x + boxSize, boxCenter.y - boxSize / 4, boxCenter.z + boxSize * 2);
+            camera.lookAt(boxCenter);
 
             // Log the adjusted camera position to verify
             console.log("Adjusted Camera Position:", camera.position);
-
-            // Set OrbitControls constraints
-            controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
-            controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
-            controls.maxAzimuthAngle = Infinity;
-
-            // Define bounding box limits for camera
-            const minPan = box.min.clone().sub(boxCenter);
-            const maxPan = box.max.clone().sub(boxCenter);
-
-            controls.addEventListener('change', function() {
-                const offset = camera.position.clone().sub(controls.target);
-
-                // Constrain the camera within the box limits
-                offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-                offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-                offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
-
-                camera.position.copy(controls.target).add(offset);
-                camera.lookAt(controls.target);
-            });
 
             animate();
         },
@@ -120,9 +90,9 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Enable smooth damping
 controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
-controls.minDistance = 0.1; // Minimum zoom distance
-controls.maxDistance = 1000; // Maximum zoom distance
-controls.autoRotate = false; // Disable auto rotation
+controls.minDistance = 10; // Minimum zoom distance
+controls.maxDistance = 2000; // Maximum zoom distance
+controls.maxPolarAngle = Math.PI / 2; // Lock vertical movement
 
 // Animation loop
 function animate() {
