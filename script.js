@@ -45,10 +45,17 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             });
             scene.add(model);
 
+            // Check if the model is added to the scene
+            console.log("Model loaded and added to the scene");
+
             // Calculate model bounding box
             const box = new THREE.Box3().setFromObject(model);
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
+
+            // Log the bounding box size and center
+            console.log("Bounding Box Size:", boxSize);
+            console.log("Bounding Box Center:", boxCenter);
 
             // Set camera position to center of the model and adjust controls target
             controls.target.copy(boxCenter);
