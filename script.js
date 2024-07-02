@@ -56,32 +56,32 @@ rgbeLoader.load('https://cdn.jsdelivr.net/gh/artworldtheory/3d-model-viewer/asse
             camera.position.y += boxSize / 5.0;
             camera.position.z += boxSize / 2.0;
 
-            // Set OrbitControls constraints
-            controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
-            controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
-            controls.maxAzimuthAngle = Infinity;
+// Set OrbitControls constraints
+controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
+controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
+controls.maxAzimuthAngle = Infinity;
 
-            // Define bounding box limits for camera
-            const minPan = box.min.clone().sub(boxCenter);
-            const maxPan = box.max.clone().sub(boxCenter);
+// Define bounding box limits for camera
+const minPan = box.min.clone().sub(boxCenter);
+const maxPan = box.max.clone().sub(boxCenter);
 
-            controls.addEventListener('change', function() {
-                const offset = camera.position.clone().sub(controls.target);
+controls.addEventListener('change', function() {
+    const offset = camera.position.clone().sub(controls.target);
 
-// Constrain the camera within the box limits
-offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
+    // Constrain the camera within the box limits
+    offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
+    offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+    offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
 
-camera.position.copy(controls.target).add(offset);
-camera.lookAt(controls.target);
+    camera.position.copy(controls.target).add(offset);
+    camera.lookAt(controls.target);
 });
 
 animate();
 },
 undefined,
 function (error) {
-console.error(error);
+    console.error(error);
 }
 );
 });
@@ -114,83 +114,92 @@ controls.maxDistance = 1000; // Maximum zoom distance
 controls.autoRotate = true; // Enable auto rotation
 controls.autoRotateSpeed = 1.0; // Auto rotation speed
 
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+
 const onKeyDown = function(event) {
-switch (event.code) {
-case 'ArrowUp':
-case 'KeyW':
-moveForward = true;
-break;
-case 'ArrowLeft':
-case 'KeyA':
-moveLeft = true;
-break;
-case 'ArrowDown':
-case 'KeyS':
-moveBackward = true;
-break;
-case 'ArrowRight':
-case 'KeyD':
-moveRight = true;
-break;
-}
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = true;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = true;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = true;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = true;
+            break;
+    }
 };
 
 const onKeyUp = function(event) {
-switch (event.code) {
-case 'ArrowUp':
-case 'KeyW':
-moveForward = false;
-break;
-case 'ArrowLeft':
-case 'KeyA':
-moveLeft = false;
-break;
-case 'ArrowDown':
-case 'KeyS':
-moveBackward = false;
-break;
-case 'ArrowRight':
-case 'KeyD':
-moveRight = false;
-break;
-}
+    switch (event.code) {
+        case 'ArrowUp':
+        case 'KeyW':
+            moveForward = false;
+            break;
+        case 'ArrowLeft':
+        case 'KeyA':
+            moveLeft = false;
+            break;
+        case 'ArrowDown':
+        case 'KeyS':
+            moveBackward = false;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            moveRight = false;
+            break;
+    }
 };
 
 document.addEventListener('keydown', onKeyDown);
 document.addEventListener('keyup', onKeyUp);
 
+let prevTime = performance.now();
+
 // Animation loop
 function animate() {
-requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 
-const time = performance.now();
-const delta = (time - prevTime) / 1000;
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
 
-velocity.x -= velocity.x * 10.0 * delta;
-velocity.z -= velocity.z * 10.0 * delta;
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
 
-direction.z = Number(moveForward) - Number(moveBackward);
-direction.x = Number(moveLeft) - Number(moveRight);
-direction.normalize();
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveLeft) - Number(moveRight);
+    direction.normalize();
 
-if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-controls.moveRight(-velocity.x * delta);
-controls.moveForward(-velocity.z * delta);
+    controls.moveRight(-velocity.x * delta);
+    controls.moveForward(-velocity.z * delta);
 
-controls.getObject().position.y = 3; // Fixed vertical position
+    controls.getObject().position.y = 3; // Fixed vertical position
 
-prevTime = time;
+    prevTime = time;
 
-renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 animate();
 
 // Handle window resize
 window.addEventListener('resize', function() {
-camera.aspect = window.innerWidth / window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
