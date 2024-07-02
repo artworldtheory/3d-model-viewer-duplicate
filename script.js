@@ -50,7 +50,7 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
 
-            // Adjust camera position based on model size
+            // Set camera position to center of the model and adjust controls target
             controls.target.copy(boxCenter);
             camera.position.copy(boxCenter);
             camera.position.x += boxSize / 2.0;
