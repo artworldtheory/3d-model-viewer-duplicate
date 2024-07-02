@@ -1,22 +1,17 @@
-// script.js
-
-let camera, scene, renderer;
-let controls;
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
+let camera, scene, renderer, controls;
+let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
+// Create a scene
 scene = new THREE.Scene();
 
-if (!camera) {
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 3, 10);
-}
+// Create a camera
+camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 3, 10);
 
+// Create a renderer
 renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xffffff, 1);
@@ -24,9 +19,11 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById('container').appendChild(renderer.domElement);
 
+// PMREMGenerator for environment maps
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 pmremGenerator.compileEquirectangularShader();
 
+// Load HDR environment map
 const rgbeLoader = new THREE.RGBELoader();
 rgbeLoader.setDataType(THREE.UnsignedByteType);
 rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
@@ -35,42 +32,41 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
     texture.dispose();
     pmremGenerator.dispose();
 
+    // Load the model
     const loader = new THREE.GLTFLoader();
-    loader.load(
-        'assets/model.gltf',
-        function (gltf) {
-            const model = gltf.scene;
-            model.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                    node.material.envMap = envMap;
-                    node.material.needsUpdate = true;
-                }
-            });
-            scene.add(model);
+    loader.load('assets/model.gltf', function (gltf) {
+        const model = gltf.scene;
+        model.traverse(function (node) {
+            if (node.isMesh) {
+                node.castShadow = true;
+                node.receiveShadow = true;
+                node.material.envMap = envMap;
+                node.material.needsUpdate = true;
+            }
+        });
+        scene.add(model);
 
-            const box = new THREE.Box3().setFromObject(model);
-            const boxSize = box.getSize(new THREE.Vector3()).length();
-            const boxCenter = box.getCenter(new THREE.Vector3());
+        const box = new THREE.Box3().setFromObject(model);
+        const boxSize = box.getSize(new THREE.Vector3()).length();
+        const boxCenter = box.getCenter(new THREE.Vector3());
 
-            controls.getObject().position.copy(boxCenter);
-            controls.getObject().position.x += boxSize / 2.0;
-            controls.getObject().position.y += boxSize / 5.0;
-            controls.getObject().position.z += boxSize / 2.0;
+        controls.target.copy(boxCenter);
+        camera.position.copy(boxCenter);
+        camera.position.x += boxSize / 2.0;
+        camera.position.y += boxSize / 5.0;
+        camera.position.z += boxSize / 2.0;
 
-            animate();
-        },
-        undefined,
-        function (error) {
-            console.error(error);
-        }
-    );
+        animate();
+    }, undefined, function (error) {
+        console.error(error);
+    });
 });
 
+// Add ambient light to the scene
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
+// Add directional light to the scene
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 7.5);
 directionalLight.castShadow = true;
@@ -84,8 +80,10 @@ directionalLight.shadow.camera.top = 10;
 directionalLight.shadow.camera.bottom = -10;
 scene.add(directionalLight);
 
-controls = new THREE.PointerLockControls(camera, document.body);
+// Add OrbitControls
+controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+// Movement controls
 document.addEventListener('keydown', function(event) {
     switch (event.code) {
         case 'ArrowUp':
@@ -128,6 +126,7 @@ document.addEventListener('keyup', function(event) {
     }
 });
 
+// Animation loop
 function animate() {
     requestAnimationFrame(animate);
 
@@ -147,10 +146,11 @@ function animate() {
     controls.moveRight(-velocity.x * delta);
     controls.moveForward(-velocity.z * delta);
 
-    controls.getObject().position.y = 3;
+    controls.target.y = 3;
 
     prevTime = time;
 
+    controls.update();
     renderer.render(scene, camera);
 }
 
