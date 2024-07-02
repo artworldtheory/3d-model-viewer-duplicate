@@ -5,86 +5,57 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 2, 10); // Adjust camera position slightly lower
+camera.position.set(0, 2, 10); // Adjust camera position
 
 // Create a renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xffffff, 1); // Set background color to white
-renderer.shadowMap.enabled = true; // Enable shadows
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Shadow mapping type
-document.getElementById('container').appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
-// PMREMGenerator for environment maps
-const pmremGenerator = new THREE.PMREMGenerator(renderer);
-pmremGenerator.compileEquirectangularShader();
+// Load the model
+const loader = new THREE.GLTFLoader();
+loader.load('assets/model.glb', function(gltf) {
+    const model = gltf.scene;
+    scene.add(model);
 
-// Use jsDelivr to serve the HDR environment map
-const rgbeLoader = new THREE.RGBELoader();
-rgbeLoader.setDataType(THREE.UnsignedByteType); // Fix CORB issue by setting data type
-rgbeLoader.load('https://cdn.jsdelivr.net/gh/artworldtheory/3d-model-viewer/assets/metro_noord_1k.hdr', function(texture) {
-    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-    scene.environment = envMap;
-    texture.dispose();
-    pmremGenerator.dispose();
+    // Compute bounding box
+    const box = new THREE.Box3().setFromObject(model);
+    const boxCenter = box.getCenter(new THREE.Vector3());
 
-    // Load the model
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-        'assets/model.gltf',
-        function (gltf) {
-            const model = gltf.scene;
-            model.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true; // Enable shadows for meshes
-                    node.receiveShadow = true;
-                    node.material.envMap = envMap; // Apply environment map to materials
-                    node.material.needsUpdate = true;
-                }
-            });
-            scene.add(model);
+    // Set camera position to center of the model and adjust controls target
+    camera.position.copy(boxCenter);
+    camera.position.x += box.max.x;
+    camera.position.y += box.max.y / 2;
+    camera.lookAt(boxCenter);
 
-            // Calculate model bounding box
-            const box = new THREE.Box3().setFromObject(model);
-            const boxSize = box.getSize(new THREE.Vector3()).length();
-            const boxCenter = box.getCenter(new THREE.Vector3());
+    // Set OrbitControls constraints
+    controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
+    controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
+    controls.maxAzimuthAngle = Infinity;
 
-            // Set camera position to center of the model and adjust controls target
-            controls.target.copy(boxCenter);
-            camera.position.copy(boxCenter);
-            camera.position.x += boxSize / 2.0;
-            camera.position.y += boxSize / 5.0;
-            camera.position.z += boxSize / 2.0;
+    // Define bounding box limits for camera
+    const minPan = box.min.clone().sub(boxCenter);
+    const maxPan = box.max.clone().sub(boxCenter);
 
-// Set OrbitControls constraints
-controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
-controls.minAzimuthAngle = -Infinity; // Allow full horizontal rotation
-controls.maxAzimuthAngle = Infinity;
+    controls.addEventListener('change', function() {
+        const offset = camera.position.clone().sub(controls.target);
 
-// Define bounding box limits for camera
-const minPan = box.min.clone().sub(boxCenter);
-const maxPan = box.max.clone().sub(boxCenter);
+        // Constrain the camera within the box limits
+        offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
+        offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
+        offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
 
-controls.addEventListener('change', function() {
-    const offset = camera.position.clone().sub(controls.target);
+        camera.position.copy(controls.target).add(offset);
+        camera.lookAt(controls.target);
+    });
 
-    // Constrain the camera within the box limits
-    offset.x = Math.max(minPan.x, Math.min(maxPan.x, offset.x));
-    offset.y = Math.max(minPan.y, Math.min(maxPan.y, offset.y));
-    offset.z = Math.max(minPan.z, Math.min(maxPan.z, offset.z));
-
-    camera.position.copy(controls.target).add(offset);
-    camera.lookAt(controls.target);
-});
-
-animate();
+    animate();
 },
 undefined,
 function (error) {
     console.error(error);
 }
 );
-});
 
 // Add ambient light to the scene
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light, lower intensity
@@ -111,8 +82,9 @@ controls.dampingFactor = 0.25; // Damping factor
 controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 0.1; // Minimum zoom distance
 controls.maxDistance = 1000; // Maximum zoom distance
-controls.autoRotate = true; // Enable auto rotation
-controls.autoRotateSpeed = 1.0; // Auto rotation speed
+
+// Add PointerLockControls for movement
+const pointerControls = new THREE.PointerLockControls(camera, document.body);
 
 let moveForward = false;
 let moveBackward = false;
@@ -185,14 +157,12 @@ function animate() {
     if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
     if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
 
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
-
-    controls.getObject().position.y = 3; // Fixed vertical position
-
-    prevTime = time;
+    pointerControls.getObject().translateX(velocity.x * delta);
+    pointerControls.getObject().translateZ(velocity.z * delta);
 
     renderer.render(scene, camera);
+
+    prevTime = time;
 }
 
 animate();
@@ -202,4 +172,17 @@ window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// PointerLockControls event listeners
+document.addEventListener('click', function() {
+    pointerControls.lock();
+});
+
+pointerControls.addEventListener('lock', function() {
+    controls.enabled = false;
+});
+
+pointerControls.addEventListener('unlock', function() {
+    controls.enabled = true;
 });
