@@ -45,6 +45,9 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             });
             scene.add(model);
 
+            // Check if the model is added to the scene
+            console.log("Model loaded and added to the scene");
+
             // Calculate model bounding box
             const box = new THREE.Box3().setFromObject(model);
             const boxSize = box.getSize(new THREE.Vector3()).length();
@@ -52,11 +55,20 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
 
             // Set camera position to center of the model and adjust controls target
             controls.target.copy(boxCenter);
-            camera.position.set(boxCenter.x + boxSize, boxCenter.y - boxSize / 4, boxCenter.z + boxSize * 2);
             camera.lookAt(boxCenter);
 
-            // Log the adjusted camera position to verify
-            console.log("Adjusted Camera Position:", camera.position);
+            // Log the bounding box size and center
+            console.log("Bounding Box Size:", boxSize);
+            console.log("Bounding Box Center:", boxCenter);
+
+            // Create a tween to animate the camera position
+            new TWEEN.Tween(camera.position)
+                .to({ x: boxCenter.x + boxSize / 2.0, y: boxCenter.y - boxSize / 4.0, z: boxCenter.z + boxSize / 2.0 }, 2000) // Duration of 2 seconds
+                .easing(TWEEN.Easing.Quadratic.InOut)
+                .onUpdate(function () {
+                    camera.lookAt(boxCenter);
+                })
+                .start();
 
             animate();
         },
@@ -98,6 +110,7 @@ controls.maxPolarAngle = Math.PI / 2; // Lock vertical movement
 function animate() {
     requestAnimationFrame(animate);
     controls.update(); // Update controls
+    TWEEN.update(); // Update tween animations
     renderer.render(scene, camera);
 }
 
