@@ -5,7 +5,10 @@ const scene = new THREE.Scene();
 
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1, 10); // Lower the camera position significantly
+camera.position.set(0, 0, 10); // Set the camera position much lower
+
+// Log the camera position to verify
+console.log("Camera initial position:", camera.position);
 
 // Create a renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -55,6 +58,9 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             camera.position.x += boxSize / 2.0;
             camera.position.y += boxSize / 5.0;
             camera.position.z += boxSize / 2.0;
+
+            // Log the adjusted camera position
+            console.log("Camera adjusted position:", camera.position);
 
             // Set OrbitControls constraints
             controls.maxPolarAngle = Math.PI / 2.5; // Limit vertical rotation
