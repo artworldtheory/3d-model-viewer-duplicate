@@ -76,8 +76,7 @@ function init() {
 
                         // Create plain white lighting for the second model
                         const model2Light = new THREE.AmbientLight(0xffffff, 1);
-                        scene.add(model2Light);
-                        model2Light.position.copy(boxCenter);
+                        model2.add(model2Light);
 
                         scene.add(model2);
 
