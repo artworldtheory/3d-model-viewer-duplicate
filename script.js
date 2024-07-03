@@ -53,6 +53,9 @@ function init() {
                 });
                 scene.add(model);
 
+                // Check if the model is added to the scene
+                console.log("Model loaded and added to the scene");
+
                 // Calculate model bounding box
                 const box = new THREE.Box3().setFromObject(model);
                 const boxCenter = box.getCenter(new THREE.Vector3());
@@ -76,6 +79,10 @@ function init() {
                         model2.scale.set(10, 10, 10);
 
                         scene.add(model2);
+
+                        // Check if the second model is added to the scene
+                        console.log("Second model loaded and added to the scene");
+
                     },
                     undefined,
                     function(error) {
