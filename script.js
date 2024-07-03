@@ -65,15 +65,19 @@ function init() {
                             if (node.isMesh) {
                                 node.castShadow = true;
                                 node.receiveShadow = true;
-                                node.material.envMap = envMap;
+                                node.material.envMap = null; // Remove environment map
                                 node.material.needsUpdate = true;
                             }
                         });
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
-                        model2.position.y -= 10; // Move the second model down slightly
+                        model2.position.y += 5; // Move the second model up
                         model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
+
+                        // Create plain white lighting for the second model
+                        const model2Light = new THREE.AmbientLight(0xffffff, 1);
+                        model2.add(model2Light);
 
                         scene.add(model2);
 
