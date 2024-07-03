@@ -72,6 +72,7 @@ function init() {
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
+                        model2.position.y -= 10; // Move the second model down slightly
                         model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
 
                         scene.add(model2);
@@ -80,7 +81,7 @@ function init() {
                         console.log("Second model loaded and added to the scene");
 
                         // Set the camera's target to the center of the second model
-                        controls.target.copy(boxCenter);
+                        controls.target.copy(model2.position);
 
                         // Log the bounding box size and center
                         console.log("Bounding Box Center:", boxCenter);
@@ -121,7 +122,7 @@ function init() {
     controls.enableDamping = true; // Enable smooth damping
     controls.dampingFactor = 0.25; // Damping factor
     controls.screenSpacePanning = true; // Allow panning
-    controls.minDistance = 10; // Minimum zoom distance
+    controls.minDistance = 1; // Minimum zoom distance to allow close zoom
     controls.maxDistance = 2000; // Maximum zoom distance
     controls.maxPolarAngle = Math.PI; // Allow full vertical movement
     controls.zoomSpeed = 1.0; // Set zoom speed
