@@ -29,7 +29,7 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
     texture.dispose();
     pmremGenerator.dispose();
 
-    // Load the model
+    // Load the first model
     const loader = new THREE.GLTFLoader();
     loader.load(
         'assets/warehouse_fbx_model_free/scene.gltf',
@@ -53,24 +53,50 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
             const boxSize = box.getSize(new THREE.Vector3()).length();
             const boxCenter = box.getCenter(new THREE.Vector3());
 
-            // Set camera position to center of the model and adjust controls target
-            controls.target.copy(boxCenter);
-            camera.lookAt(boxCenter);
+            // Load the second model
+            loader.load(
+                'assets/sony_gv-8_video_walkman/scene.gltf',
+                function (gltf2) {
+                    const model2 = gltf2.scene;
+                    model2.traverse(function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true; // Enable shadows for meshes
+                            node.receiveShadow = true;
+                            node.material.envMap = envMap; // Apply environment map to materials
+                            node.material.needsUpdate = true;
+                        }
+                    });
+                    // Position the second model in the center of the first model
+                    model2.position.copy(boxCenter);
+                    scene.add(model2);
 
-            // Log the bounding box size and center
-            console.log("Bounding Box Size:", boxSize);
-            console.log("Bounding Box Center:", boxCenter);
+                    // Check if the second model is added to the scene
+                    console.log("Second model loaded and added to the scene");
 
-            // Create a tween to animate the camera position
-            new TWEEN.Tween(camera.position)
-                .to({ x: boxCenter.x + boxSize / 2.0, y: boxCenter.y - boxSize / 4.0, z: boxCenter.z + boxSize / 2.0 }, 2000) // Duration of 2 seconds
-                .easing(TWEEN.Easing.Quadratic.InOut)
-                .onUpdate(function () {
+                    // Set camera position to center of the first model and adjust controls target
+                    controls.target.copy(boxCenter);
                     camera.lookAt(boxCenter);
-                })
-                .start();
 
-            animate();
+                    // Log the bounding box size and center
+                    console.log("Bounding Box Size:", boxSize);
+                    console.log("Bounding Box Center:", boxCenter);
+
+                    // Create a tween to animate the camera position
+                    new TWEEN.Tween(camera.position)
+                        .to({ x: boxCenter.x + boxSize / 2.0, y: boxCenter.y - boxSize / 4.0, z: boxCenter.z + boxSize / 2.0 }, 2000) // Duration of 2 seconds
+                        .easing(TWEEN.Easing.Quadratic.InOut)
+                        .onUpdate(function () {
+                            camera.lookAt(boxCenter);
+                        })
+                        .start();
+
+                    animate();
+                },
+                undefined,
+                function (error) {
+                    console.error('Error loading second model:', error);
+                }
+            );
         },
         undefined,
         function (error) {
