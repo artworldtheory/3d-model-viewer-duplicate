@@ -75,8 +75,13 @@ function init() {
                         model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
 
                         // Create plain white lighting for the second model
-                        const model2Light = new THREE.AmbientLight(0xffffff, 1);
-                        model2.add(model2Light);
+                        const model2AmbientLight = new THREE.AmbientLight(0xffffff, 1);
+                        scene.add(model2AmbientLight);
+
+                        const model2DirectionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                        model2DirectionalLight.position.set(5, 10, 7.5);
+                        model2DirectionalLight.castShadow = true;
+                        scene.add(model2DirectionalLight);
 
                         scene.add(model2);
 
