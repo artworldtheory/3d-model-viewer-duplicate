@@ -72,7 +72,7 @@ function init() {
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
-                        model2.scale.set(2, 2, 2); // Scale up the second model by a factor of 2
+                        model2.scale.set(15, 15, 15); // Scale up the second model by a factor of 15
 
                         scene.add(model2);
 
