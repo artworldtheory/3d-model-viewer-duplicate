@@ -1,5 +1,4 @@
-let camera, scene, renderer;
-let controls;
+let camera, scene, renderer, controls;
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
@@ -76,13 +75,19 @@ function init() {
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
-                        model2.scale.set(10, 10, 10);
+                        model2.scale.set(2, 2, 2); // Scale up the second model by a factor of 2
 
                         scene.add(model2);
 
                         // Check if the second model is added to the scene
                         console.log("Second model loaded and added to the scene");
 
+                        // Set camera position to center of the first model and adjust controls target
+                        controls.target.copy(boxCenter);
+                        camera.lookAt(boxCenter);
+
+                        // Log the bounding box size and center
+                        console.log("Bounding Box Center:", boxCenter);
                     },
                     undefined,
                     function(error) {
@@ -115,74 +120,15 @@ function init() {
     directionalLight.shadow.camera.bottom = -10;
     scene.add(directionalLight);
 
-    // Add PointerLockControls for first-person navigation
-    controls = new THREE.PointerLockControls(camera, document.body);
-
-    // Handle Pointer Lock
-    const blocker = document.getElementById('blocker');
-    const instructions = document.getElementById('instructions');
-
-    instructions.addEventListener('click', function() {
-        controls.lock();
-    });
-
-    controls.addEventListener('lock', function() {
-        instructions.style.display = 'none';
-        blocker.style.display = 'none';
-    });
-
-    controls.addEventListener('unlock', function() {
-        blocker.style.display = 'block';
-        instructions.style.display = '';
-    });
-
-    scene.add(controls.getObject());
-
-    // Keyboard Controls
-    const onKeyDown = function(event) {
-        switch (event.code) {
-            case 'ArrowUp':
-            case 'KeyW':
-                moveForward = true;
-                break;
-            case 'ArrowLeft':
-            case 'KeyA':
-                moveLeft = true;
-                break;
-            case 'ArrowDown':
-            case 'KeyS':
-                moveBackward = true;
-                break;
-            case 'ArrowRight':
-            case 'KeyD':
-                moveRight = true;
-                break;
-        }
-    };
-
-    const onKeyUp = function(event) {
-        switch (event.code) {
-            case 'ArrowUp':
-            case 'KeyW':
-                moveForward = false;
-                break;
-            case 'ArrowLeft':
-            case 'KeyA':
-                moveLeft = false;
-                break;
-            case 'ArrowDown':
-            case 'KeyS':
-                moveBackward = false;
-                break;
-            case 'ArrowRight':
-            case 'KeyD':
-                moveRight = false;
-                break;
-        }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
+    // Add OrbitControls for navigation
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; // Enable smooth damping
+    controls.dampingFactor = 0.25; // Damping factor
+    controls.screenSpacePanning = true; // Allow panning
+    controls.minDistance = 10; // Minimum zoom distance
+    controls.maxDistance = 2000; // Maximum zoom distance
+    controls.maxPolarAngle = Math.PI; // Allow full vertical movement
+    controls.zoomSpeed = 1.0; // Set zoom speed
 
     // Handle window resize
     window.addEventListener('resize', function() {
@@ -195,25 +141,8 @@ function init() {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-
-    const time = performance.now();
-    const delta = (time - prevTime) / 1000;
-
-    velocity.x -= velocity.x * 10.0 * delta;
-    velocity.z -= velocity.z * 10.0 * delta;
-
-    direction.z = Number(moveForward) - Number(moveBackward);
-    direction.x = Number(moveLeft) - Number(moveRight);
-    direction.normalize(); // this ensures consistent movements in all directions
-
-    if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
-    if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
-
-    controls.moveRight(-velocity.x * delta);
-    controls.moveForward(-velocity.z * delta);
-
-    renderer.render(scene, camera);
-    prevTime = time;
+    controls.update(); // Update orbit controls
+    renderer.render(scene, camera); // Render the scene
 }
 
 // Start the animation loop
