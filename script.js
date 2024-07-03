@@ -72,12 +72,12 @@ function init() {
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
-                        model2.position.y += 5; // Move the second model up
                         model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
 
                         // Create plain white lighting for the second model
                         const model2Light = new THREE.AmbientLight(0xffffff, 1);
-                        model2.add(model2Light);
+                        scene.add(model2Light);
+                        model2Light.position.copy(boxCenter);
 
                         scene.add(model2);
 
