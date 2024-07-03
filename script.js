@@ -66,8 +66,11 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
                             node.material.needsUpdate = true;
                         }
                     });
-                    // Position the second model in the center of the first model
+
+                    // Position and scale the second model
                     model2.position.copy(boxCenter);
+                    model2.scale.set(10, 10, 10); // Increase the size of the second model
+
                     scene.add(model2);
 
                     // Check if the second model is added to the scene
