@@ -72,12 +72,15 @@ function init() {
 
                         // Position and scale the second model
                         model2.position.copy(boxCenter);
-                        model2.scale.set(15, 15, 15); // Scale up the second model by a factor of 15
+                        model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
 
                         scene.add(model2);
 
                         // Check if the second model is added to the scene
                         console.log("Second model loaded and added to the scene");
+
+                        // Set the camera's target to the center of the second model
+                        controls.target.copy(boxCenter);
 
                         // Log the bounding box size and center
                         console.log("Bounding Box Center:", boxCenter);
