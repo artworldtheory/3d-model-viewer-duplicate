@@ -1,8 +1,5 @@
 let camera, scene, renderer, controls;
-let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
 let prevTime = performance.now();
-const velocity = new THREE.Vector3();
-const direction = new THREE.Vector3();
 
 init();
 animate();
@@ -81,10 +78,6 @@ function init() {
 
                         // Check if the second model is added to the scene
                         console.log("Second model loaded and added to the scene");
-
-                        // Set camera position to center of the first model and adjust controls target
-                        controls.target.copy(boxCenter);
-                        camera.lookAt(boxCenter);
 
                         // Log the bounding box size and center
                         console.log("Bounding Box Center:", boxCenter);
