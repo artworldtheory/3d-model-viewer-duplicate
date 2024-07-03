@@ -105,6 +105,38 @@ controls.screenSpacePanning = true; // Allow panning
 controls.minDistance = 10; // Minimum zoom distance
 controls.maxDistance = 2000; // Maximum zoom distance
 controls.maxPolarAngle = Math.PI / 2; // Lock vertical movement
+controls.zoomSpeed = 1.0; // Set zoom speed
+
+// Function to handle double-click to focus
+function onDoubleClick(event) {
+    // Calculate mouse position in normalized device coordinates
+    const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+    );
+
+    // Raycaster to find intersected objects
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        const intersect = intersects[0];
+        const targetPosition = intersect.point;
+
+        // Create a tween to animate the camera position
+        new TWEEN.Tween(camera.position)
+            .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z + 100 }, 1000) // Adjust the z position for a better view
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(function () {
+                camera.lookAt(targetPosition);
+            })
+            .start();
+    }
+}
+
+// Add event listener for double-click
+window.addEventListener('dblclick', onDoubleClick);
 
 // Animation loop
 function animate() {
