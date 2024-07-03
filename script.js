@@ -32,7 +32,7 @@ rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
     // Load the model
     const loader = new THREE.GLTFLoader();
     loader.load(
-        '/warehouse_fbx_model_free/scene.gltf',
+        'assets/warehouse_fbx_model_free/scene.gltf',
         function (gltf) {
             const model = gltf.scene;
             model.traverse(function (node) {
