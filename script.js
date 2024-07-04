@@ -10,7 +10,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 20, 100); // Set the camera position closer
+    camera.position.set(0, 20, 300); // Set the camera position further back to account for larger model
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -36,8 +36,8 @@ function init() {
             });
 
             // Position, scale and rotate the second model
-            model2.position.set(0, -1, 0); // Set initial position
-            model2.scale.set(20, 20, 20); // Scale up the second model by a factor of 20
+            model2.position.set(0, 0, 0); // Set initial position to the origin
+            model2.scale.set(100, 100, 100); // Scale up the second model by a factor of 100
             model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
             // Create plain white lighting for the second model
@@ -54,9 +54,8 @@ function init() {
             // Check if the second model is added to the scene
             console.log("Second model loaded and added to the scene");
 
-            // Set the camera's target to be slightly above the second model
-            const cameraTarget = new THREE.Vector3().copy(model2.position).add(new THREE.Vector3(0, 5, 0));
-            controls.target.copy(cameraTarget);
+            // Set the camera's target to the center of the second model
+            controls.target.copy(model2.position);
 
         },
         undefined,
