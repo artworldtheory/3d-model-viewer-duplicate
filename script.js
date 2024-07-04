@@ -77,7 +77,7 @@ function init() {
 
                         // Position the additional model around the second model
                         model.position.set(50, 0, 50); // Adjust the position as needed
-                        model.scale.set(10, 10, 10); // Adjust the scale as needed
+                        model.scale.set(0.1, 0.1, 0.1); // Scale down the model by a factor of 0.1 (10 times smaller)
 
                         scene.add(model);
 
