@@ -70,9 +70,10 @@ function init() {
                             }
                         });
 
-                        // Position and scale the second model
-                        model2.position.copy(boxCenter);
-                        model2.scale.set(10, 10, 10); // Scale up the second model by a factor of 10
+                        // Position, scale and rotate the second model
+                        model2.position.copy(boxCenter).add(new THREE.Vector3(0, -5, 0)); // Slightly lower
+                        model2.scale.set(20, 20, 20); // Scale up the second model by a factor of 20
+                        model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
                         // Create plain white lighting for the second model
                         const model2AmbientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -108,11 +109,11 @@ function init() {
     });
 
     // Add ambient light to the scene
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
     scene.add(ambientLight);
 
     // Add directional light to the scene
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    const directionalLight = new THREE.DirectionalLight(0x888888, 1); // Change to plain grey light
     directionalLight.position.set(5, 10, 7.5);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
