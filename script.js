@@ -20,94 +20,50 @@ function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
 
-    // PMREMGenerator for environment maps
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
+    // Load the second model directly
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+        'assets/sony_gv-8_video_walkman/scene.gltf',
+        function(gltf2) {
+            const model2 = gltf2.scene;
+            model2.traverse(function(node) {
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                    node.material.envMap = null; // Remove environment map
+                    node.material.needsUpdate = true;
+                }
+            });
 
-    // Load HDR environment map
-    const rgbeLoader = new THREE.RGBELoader();
-    rgbeLoader.setDataType(THREE.UnsignedByteType);
-    rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
-        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-        scene.environment = envMap;
-        texture.dispose();
-        pmremGenerator.dispose();
+            // Position, scale and rotate the second model
+            model2.position.set(0, -1, 0); // Set initial position
+            model2.scale.set(20, 20, 20); // Scale up the second model by a factor of 20
+            model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
-        // Load the first model
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-            'assets/warehouse_fbx_model_free/scene.gltf',
-            function(gltf) {
-                const model = gltf.scene;
-                model.traverse(function(node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                        node.material.envMap = envMap;
-                        node.material.needsUpdate = true;
-                    }
-                });
-                scene.add(model);
+            // Create plain white lighting for the second model
+            const model2AmbientLight = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(model2AmbientLight);
 
-                // Check if the model is added to the scene
-                console.log("Model loaded and added to the scene");
+            const model2DirectionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            model2DirectionalLight.position.set(5, 10, 7.5);
+            model2DirectionalLight.castShadow = true;
+            scene.add(model2DirectionalLight);
 
-                // Calculate model bounding box
-                const box = new THREE.Box3().setFromObject(model);
-                const boxCenter = box.getCenter(new THREE.Vector3());
+            scene.add(model2);
 
-                // Load the second model
-                loader.load(
-                    'assets/sony_gv-8_video_walkman/scene.gltf',
-                    function(gltf2) {
-                        const model2 = gltf2.scene;
-                        model2.traverse(function(node) {
-                            if (node.isMesh) {
-                                node.castShadow = true;
-                                node.receiveShadow = true;
-                                node.material.envMap = null; // Remove environment map
-                                node.material.needsUpdate = true;
-                            }
-                        });
+            // Check if the second model is added to the scene
+            console.log("Second model loaded and added to the scene");
 
-                        // Position, scale and rotate the second model
-                        model2.position.copy(boxCenter).add(new THREE.Vector3(0, -1, 0)); // Lower the position
-                        model2.scale.set(20, 20, 20); // Scale up the second model by a factor of 20
-                        model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
+            // Set the camera's target to be slightly above the second model
+            const cameraTarget = new THREE.Vector3().copy(model2.position).add(new THREE.Vector3(0, 5, 0));
+            controls.target.copy(cameraTarget);
 
-                        // Create plain white lighting for the second model
-                        const model2AmbientLight = new THREE.AmbientLight(0xffffff, 1);
-                        scene.add(model2AmbientLight);
-
-                        const model2DirectionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                        model2DirectionalLight.position.set(5, 10, 7.5);
-                        model2DirectionalLight.castShadow = true;
-                        scene.add(model2DirectionalLight);
-
-                        scene.add(model2);
-
-                        // Check if the second model is added to the scene
-                        console.log("Second model loaded and added to the scene");
-
-                        // Set the camera's target to be slightly above the second model
-                        const cameraTarget = new THREE.Vector3().copy(model2.position).add(new THREE.Vector3(0, 5, 0));
-                        controls.target.copy(cameraTarget);
-
-                        // Log the bounding box size and center
-                        console.log("Bounding Box Center:", boxCenter);
-                    },
-                    undefined,
-                    function(error) {
-                        console.error('Error loading second model:', error);
-                    }
-                );
-            },
-            undefined,
-            function(error) {
-                console.error('Error loading model:', error);
-            }
-        );
-    });
+        },
+        undefined,
+        function(error) {
+            console.error('Error loading second model:', error);
+        }
+    );
 
     // Add ambient light to the scene
     const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
