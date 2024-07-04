@@ -20,40 +20,83 @@ function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
 
-    // Load the second model directly
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-        'assets/sony_gv-8_video_walkman/scene.gltf',
-        function(gltf2) {
-            const model2 = gltf2.scene;
-            model2.traverse(function(node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                    node.material.envMap = null; // Remove environment map
-                    node.material.needsUpdate = true;
-                }
-            });
+    // PMREMGenerator for environment maps
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
 
-            // Position, scale and rotate the second model
-            model2.position.set(0, 0, 0); // Set initial position to the origin
-            model2.scale.set(100, 100, 100); // Scale up the second model by a factor of 100
-            model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
+    // Load HDR environment map
+    const rgbeLoader = new THREE.RGBELoader();
+    rgbeLoader.setDataType(THREE.UnsignedByteType);
+    rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
+        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+        scene.environment = envMap;
+        texture.dispose();
+        pmremGenerator.dispose();
 
-            scene.add(model2);
+        // Load the first model (sony_gv-8_video_walkman)
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            'assets/sony_gv-8_video_walkman/scene.gltf',
+            function(gltf2) {
+                const model2 = gltf2.scene;
+                model2.traverse(function(node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                        node.material.envMap = envMap; // Use environment map
+                        node.material.needsUpdate = true;
+                    }
+                });
 
-            // Check if the second model is added to the scene
-            console.log("Second model loaded and added to the scene");
+                // Position, scale and rotate the second model
+                model2.position.set(0, 0, 0); // Set initial position to the origin
+                model2.scale.set(100, 100, 100); // Scale up the second model by a factor of 100
+                model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
-            // Set the camera's target to the center of the second model
-            controls.target.copy(model2.position);
+                scene.add(model2);
 
-        },
-        undefined,
-        function(error) {
-            console.error('Error loading second model:', error);
-        }
-    );
+                // Check if the second model is added to the scene
+                console.log("Second model loaded and added to the scene");
+
+                // Set the camera's target to the center of the second model
+                controls.target.copy(model2.position);
+
+                // Load the additional model
+                loader.load(
+                    'assets/model.gltf',
+                    function(gltf) {
+                        const model = gltf.scene;
+                        model.traverse(function(node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                                node.material.envMap = envMap; // Use environment map
+                                node.material.needsUpdate = true;
+                            }
+                        });
+
+                        // Position the additional model around the second model
+                        model.position.set(50, 0, 50); // Adjust the position as needed
+                        model.scale.set(10, 10, 10); // Adjust the scale as needed
+
+                        scene.add(model);
+
+                        // Check if the additional model is added to the scene
+                        console.log("Additional model loaded and added to the scene");
+                    },
+                    undefined,
+                    function(error) {
+                        console.error('Error loading additional model:', error);
+                    }
+                );
+
+            },
+            undefined,
+            function(error) {
+                console.error('Error loading second model:', error);
+            }
+        );
+    });
 
     // Add ambient light to the scene
     const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
