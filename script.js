@@ -10,7 +10,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 50, 150); // Set the camera position higher and further back
+    camera.position.set(0, 20, 100); // Set the camera position closer
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
