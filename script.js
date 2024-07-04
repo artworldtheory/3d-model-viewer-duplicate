@@ -40,15 +40,6 @@ function init() {
             model2.scale.set(100, 100, 100); // Scale up the second model by a factor of 100
             model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
-            // Create plain white lighting for the second model
-            const model2AmbientLight = new THREE.AmbientLight(0xffffff, 1);
-            scene.add(model2AmbientLight);
-
-            const model2DirectionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            model2DirectionalLight.position.set(5, 10, 7.5);
-            model2DirectionalLight.castShadow = true;
-            scene.add(model2DirectionalLight);
-
             scene.add(model2);
 
             // Check if the second model is added to the scene
@@ -69,7 +60,7 @@ function init() {
     scene.add(ambientLight);
 
     // Add directional light to the scene
-    const directionalLight = new THREE.DirectionalLight(0x888888, 1); // Change to plain grey light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light
     directionalLight.position.set(5, 10, 7.5);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
@@ -81,6 +72,23 @@ function init() {
     directionalLight.shadow.camera.top = 10;
     directionalLight.shadow.camera.bottom = -10;
     scene.add(directionalLight);
+
+    // Add additional point lights for better illumination
+    const pointLight1 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight1.position.set(50, 50, 50);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight2.position.set(-50, -50, 50);
+    scene.add(pointLight2);
+
+    const pointLight3 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight3.position.set(50, -50, -50);
+    scene.add(pointLight3);
+
+    const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight4.position.set(-50, 50, -50);
+    scene.add(pointLight4);
 
     // Add OrbitControls for navigation
     controls = new THREE.OrbitControls(camera, renderer.domElement);
