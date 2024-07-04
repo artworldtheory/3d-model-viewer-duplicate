@@ -10,7 +10,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 0, 100);
+    camera.position.set(0, 50, 150); // Set the camera position higher and further back
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -89,8 +89,9 @@ function init() {
                         // Check if the second model is added to the scene
                         console.log("Second model loaded and added to the scene");
 
-                        // Set the camera's target to the center of the second model
-                        controls.target.copy(model2.position);
+                        // Set the camera's target to be slightly above the second model
+                        const cameraTarget = new THREE.Vector3().copy(model2.position).add(new THREE.Vector3(0, 5, 0));
+                        controls.target.copy(cameraTarget);
 
                         // Log the bounding box size and center
                         console.log("Bounding Box Center:", boxCenter);
