@@ -71,7 +71,7 @@ function init() {
                         });
 
                         // Position, scale and rotate the second model
-                        model2.position.copy(boxCenter).add(new THREE.Vector3(0, -5, 0)); // Slightly lower
+                        model2.position.copy(boxCenter).add(new THREE.Vector3(0, 2, 0)); // Slightly higher
                         model2.scale.set(20, 20, 20); // Scale up the second model by a factor of 20
                         model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
