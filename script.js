@@ -10,11 +10,13 @@ function init() {
     const loadingManager = new THREE.LoadingManager(
         // Loaded callback
         () => {
+            console.log("All assets loaded");
             const loadingScreen = document.getElementById('loading-screen');
             loadingScreen.style.display = 'none';
         },
         // Progress callback
         (url, itemsLoaded, itemsTotal) => {
+            console.log(`Loading file: ${url}. Loaded ${itemsLoaded} of ${itemsTotal} files.`);
             const percentage = Math.round((itemsLoaded / itemsTotal) * 100);
             document.getElementById('loading-percentage').innerText = percentage;
         }
@@ -154,8 +156,6 @@ function init() {
 
     const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
     pointLight4.position.set(-50, 50, -50);
-    scene.add(pointLight4);
-
     scene.add(pointLight4);
 
     // Add OrbitControls for navigation
