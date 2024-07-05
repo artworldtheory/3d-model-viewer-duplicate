@@ -11,7 +11,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 20, 300); // Set the camera position further back to account for larger model
+    camera.position.set(0, 100, 300); // Set the camera position further back to account for larger model
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -87,7 +87,7 @@ function init() {
 
                         // Set initial camera position for zooming effect
                         new TWEEN.Tween(camera.position)
-                            .to({ x: 0, y: 100, z: 100 }, 2000)
+                            .to({ x: 0, y: 50, z: 50 }, 2000)
                             .easing(TWEEN.Easing.Quadratic.InOut)
                             .onComplete(() => {
                                 initialZoomComplete = true; // Enable free roaming after zoom in
