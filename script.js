@@ -70,8 +70,8 @@ function init() {
                 });
 
                 // Position, scale and rotate the second model
-                model2.position.set(0, 0, 0); // Set initial position to the origin
-                model2.scale.set(200, 200, 200); // Scale up the second model by a factor of 200
+                model2.position.set(0, 10, 0); // Set initial position to the origin and move up slightly
+                model2.scale.set(150, 150, 150); // Scale down the second model slightly
                 model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
                 scene.add(model2);
@@ -93,6 +93,7 @@ function init() {
                                 node.receiveShadow = true;
                                 node.material.envMap = envMap; // Use environment map
                                 node.material.needsUpdate = true;
+                                console.log(`Loaded mesh: ${node.name}`);
                             }
                         });
 
@@ -104,15 +105,6 @@ function init() {
 
                         // Check if the additional model is added to the scene
                         console.log("Additional model loaded and added to the scene");
-
-                        // Set initial camera position for zooming effect
-                        new TWEEN.Tween(camera.position)
-                            .to({ x: 0, y: 50, z: 50 }, 2000)
-                            .easing(TWEEN.Easing.Quadratic.InOut)
-                            .onComplete(() => {
-                                initialZoomComplete = true; // Enable free roaming after zoom in
-                            })
-                            .start();
                     },
                     undefined,
                     function(error) {
