@@ -19,6 +19,10 @@ function init() {
             console.log(`Loading file: ${url}. Loaded ${itemsLoaded} of ${itemsTotal} files.`);
             const percentage = Math.round((itemsLoaded / itemsTotal) * 100);
             document.getElementById('loading-percentage').innerText = percentage;
+        },
+        // Error callback
+        (url) => {
+            console.error(`There was an error loading ${url}`);
         }
     );
 
