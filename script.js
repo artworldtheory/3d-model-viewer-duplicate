@@ -6,8 +6,23 @@ init();
 animate();
 
 function init() {
+    // Create a loading manager
+    const loadingManager = new THREE.LoadingManager(
+        // Loaded callback
+        () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = 'none';
+        },
+        // Progress callback
+        (url, itemsLoaded, itemsTotal) => {
+            const percentage = Math.round((itemsLoaded / itemsTotal) * 100);
+            document.getElementById('loading-percentage').innerText = percentage;
+        }
+    );
+
     // Create a scene
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000); // Set the scene background to black
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -16,7 +31,6 @@ function init() {
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0xffffff, 1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
@@ -26,7 +40,7 @@ function init() {
     pmremGenerator.compileEquirectangularShader();
 
     // Load HDR environment map
-    const rgbeLoader = new THREE.RGBELoader();
+    const rgbeLoader = new THREE.RGBELoader(loadingManager);
     rgbeLoader.setDataType(THREE.UnsignedByteType);
     rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
         const envMap = pmremGenerator.fromEquirectangular(texture).texture;
@@ -35,7 +49,7 @@ function init() {
         pmremGenerator.dispose();
 
         // Load the first model (sony_gv-8_video_walkman)
-        const loader = new THREE.GLTFLoader();
+        const loader = new THREE.GLTFLoader(loadingManager);
         loader.load(
             'assets/sony_gv-8_video_walkman/scene.gltf',
             function(gltf2) {
@@ -140,6 +154,8 @@ function init() {
 
     const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
     pointLight4.position.set(-50, 50, -50);
+    scene.add(pointLight4);
+
     scene.add(pointLight4);
 
     // Add OrbitControls for navigation
