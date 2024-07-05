@@ -1,5 +1,6 @@
 let camera, scene, renderer, controls;
 let prevTime = performance.now();
+let initialZoomComplete = false;
 
 init();
 animate();
@@ -50,7 +51,7 @@ function init() {
 
                 // Position, scale and rotate the second model
                 model2.position.set(0, 0, 0); // Set initial position to the origin
-                model2.scale.set(100, 100, 100); // Scale up the second model by a factor of 100
+                model2.scale.set(200, 200, 200); // Scale up the second model by a factor of 200
                 model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
                 scene.add(model2);
@@ -83,13 +84,21 @@ function init() {
 
                         // Check if the additional model is added to the scene
                         console.log("Additional model loaded and added to the scene");
+
+                        // Set initial camera position for zooming effect
+                        new TWEEN.Tween(camera.position)
+                            .to({ x: 0, y: 100, z: 100 }, 2000)
+                            .easing(TWEEN.Easing.Quadratic.InOut)
+                            .onComplete(() => {
+                                initialZoomComplete = true; // Enable free roaming after zoom in
+                            })
+                            .start();
                     },
                     undefined,
                     function(error) {
                         console.error('Error loading additional model:', error);
                     }
                 );
-
             },
             undefined,
             function(error) {
@@ -154,6 +163,7 @@ function init() {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+    TWEEN.update(); // Update TWEEN animations
     controls.update(); // Update orbit controls
     renderer.render(scene, camera); // Render the scene
 }
