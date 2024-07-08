@@ -32,7 +32,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 50, 300); // Set the camera position slightly lower
+    camera.position.set(0, 0, 300); // Set the camera position slightly lower
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
