@@ -32,7 +32,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 30, 300); // Set the camera position further back to account for larger model
+    camera.position.set(0, 25, 300); // Set the camera position further back to account for larger model
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
