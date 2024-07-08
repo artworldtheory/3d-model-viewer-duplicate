@@ -82,7 +82,9 @@ function init() {
 
                 // Set the camera's target to the center of the second model
                 controls.target.copy(model2.position);
-
+                targetPosition.y += 10; // Adjust this value to set the target slightly above the model
+                controls.target.copy(targetPosition);
+                
                 // Load the additional model
                 loader.load(
                     'assets/model.gltf',
