@@ -82,7 +82,7 @@ function init() {
 
                 // Set the camera's target to slightly above the center of the second model
                 const targetPosition = model2.position.clone();
-                targetPosition.y += 10; // Adjust this value to set the target slightly above the model
+                targetPosition.y += 5; // Adjust this value to set the target slightly above the model
                 controls.target.copy(targetPosition);
 
                 // Load the additional model
