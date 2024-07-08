@@ -72,7 +72,7 @@ function init() {
                 // Position, scale and rotate the second model
                 model2.position.set(18, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
                 model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = -Math.PI / 10; // Rotate downwards slightly
+                model2.rotation.x = -Math.PI / 9.99999999; // Rotate downwards slightly
 
                 scene.add(model2);
 
@@ -81,7 +81,7 @@ function init() {
 
                 // Set the camera's target to slightly above the center of the second model
                 const targetPosition = model2.position.clone();
-                targetPosition.y += 10; // Adjust this value to set the target slightly above the model
+                targetPosition.y += 4; // Adjust this value to set the target slightly above the model
                 controls.target.copy(targetPosition);
 
                 // Load the additional model
