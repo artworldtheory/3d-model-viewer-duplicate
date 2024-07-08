@@ -71,8 +71,8 @@ function init() {
 
                 // Position, scale and rotate the second model
                 model2.position.set(87, 2.5, 30); // Set initial position to the origin and move up slightly
-                model2.scale.set(110, 110, 110); // Scale down the second model slightly
-                model2.rotation.y = Math.PI / 25; // Rotate slightly towards the viewer
+                model2.scale.set(100, 100, 100); // Scale down the second model slightly
+                model2.rotation.y = Math.PI / 27; // Rotate slightly towards the viewer
                 model2.rotation.x = -Math.PI / -10; // Rotate downwards slightly
 
                 scene.add(model2);
