@@ -121,41 +121,6 @@ function init() {
         );
     });
 
-    // Add ambient light to the scene
-    const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
-    scene.add(ambientLight);
-
-    // Add directional light to the scene
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light
-    directionalLight.position.set(5, 10, 7.5);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
-    directionalLight.shadow.camera.left = -10;
-    directionalLight.shadow.camera.right = 10;
-    directionalLight.shadow.camera.top = 10;
-    directionalLight.shadow.camera.bottom = -10;
-    scene.add(directionalLight);
-
-    // Add additional point lights for better illumination
-    const pointLight1 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight1.position.set(50, 50, 50);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight2.position.set(-50, -50, 50);
-    scene.add(pointLight2);
-
-    const pointLight3 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight3.position.set(50, -50, -50);
-    scene.add(pointLight3);
-
-    const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight4.position.set(-50, 50, -50);
-    scene.add(pointLight4);
-
     // Add OrbitControls for navigation
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; // Enable smooth damping
