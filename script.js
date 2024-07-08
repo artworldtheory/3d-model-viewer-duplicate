@@ -32,7 +32,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 75, 300); // Set the camera position further back to account for larger model
+    camera.position.set(0, 50, 300); // Set the camera position further back to account for larger model
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -70,8 +70,8 @@ function init() {
                 });
 
                 // Position, scale and rotate the second model
-                model2.position.set(0, 7, 0); // Set initial position to the origin and move up slightly
-                model2.scale.set(150, 150, 150); // Scale down the second model slightly
+                model2.position.set(0, 6, 0); // Set initial position to the origin and move up slightly
+                model2.scale.set(140, 140, 140); // Scale down the second model slightly
                 model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
 
                 scene.add(model2);
