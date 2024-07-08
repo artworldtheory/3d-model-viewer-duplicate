@@ -1,3 +1,4 @@
+<script>
 let camera, scene, renderer, controls;
 let prevTime = performance.now();
 let initialZoomComplete = false;
@@ -32,7 +33,7 @@ function init() {
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    camera.position.set(0, 10, 300); // Set the camera position slightly lower
+    camera.position.set(0, 50, 300); // Set the camera position slightly lower
 
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -64,15 +65,16 @@ function init() {
                     if (node.isMesh) {
                         node.castShadow = true;
                         node.receiveShadow = true;
-                        node.material.envMap = envMap; // Use environment map
+                        // Do not set environment map for this model
                         node.material.needsUpdate = true;
                     }
                 });
 
                 // Position, scale and rotate the second model
-                model2.position.set(18, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
-                model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = -Math.PI / -9.99999; // Rotate downwards slightly
+                model2.position.set(0, 5, 0); // Adjusted: Set initial position to the origin and move up slightly
+                model2.scale.set(150, 150, 150); // Scale down the second model slightly
+                model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
+                model2.rotation.x = -Math.PI / 8; // Rotate downwards slightly
 
                 scene.add(model2);
 
@@ -81,7 +83,7 @@ function init() {
 
                 // Set the camera's target to slightly above the center of the second model
                 const targetPosition = model2.position.clone();
-                targetPosition.y += 5; // Adjust this value to set the target slightly above the model
+                targetPosition.y += 10; // Adjust this value to set the target slightly above the model
                 controls.target.copy(targetPosition);
 
                 // Load the additional model
