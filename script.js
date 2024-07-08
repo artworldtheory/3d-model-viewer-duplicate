@@ -1,4 +1,3 @@
-<script>
 let camera, scene, renderer, controls;
 let prevTime = performance.now();
 let initialZoomComplete = false;
