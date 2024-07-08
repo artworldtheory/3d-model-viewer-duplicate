@@ -12,7 +12,7 @@ loader.load(
         });
 
         // Position, scale and rotate the second model
-        model2.position.set(0, 7, 0); // Adjusted: Set initial position to the origin and move up slightly
+        model2.position.set(0, 6, 0); // Adjusted: Set initial position to the origin and move up slightly
 
         model2.scale.set(150, 150, 150); // Scale down the second model slightly
         model2.rotation.y = Math.PI / 8; // Rotate slightly towards the viewer
