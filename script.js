@@ -1,6 +1,14 @@
 let camera, scene, renderer, controls;
 let prevTime = performance.now();
 let initialZoomComplete = false;
+let audioLoader, listener, sound;
+let audioFiles = [
+    'assets/11_WIP_.mp3',
+    'assets/86_WIP_.mp3',
+    'assets/90 V1_WIP_.mp3',
+    'assets/91_WIP_.mp3'
+];
+let currentAudioIndex = 0;
 
 init();
 animate();
@@ -41,6 +49,11 @@ function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
 
+    // Create audio listener and loader
+    listener = new THREE.AudioListener();
+    camera.add(listener);
+    audioLoader = new THREE.AudioLoader();
+
     // PMREMGenerator for environment maps
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     pmremGenerator.compileEquirectangularShader();
@@ -54,10 +67,10 @@ function init() {
         texture.dispose();
         pmremGenerator.dispose();
 
-        // Load the first model (sony_gv-8_video_walkman)
+        // Load the new model (Buttons2.gltf)
         const loader = new THREE.GLTFLoader(loadingManager);
         loader.load(
-            'assets/sony_gv-8_video_walkman/scene.gltf',
+            'assets/sony_gv-8_video_walkman/Buttons2.gltf',
             function(gltf2) {
                 const model2 = gltf2.scene;
                 model2.traverse(function(node) {
@@ -66,6 +79,17 @@ function init() {
                         node.receiveShadow = true;
                         // Do not set environment map for this model
                         node.material.needsUpdate = true;
+
+                        // Add event listeners to buttons
+                        if (node.name === 'PlayButton') {
+                            node.userData = { type: 'play' };
+                        } else if (node.name === 'PauseButton') {
+                            node.userData = { type: 'pause' };
+                        } else if (node.name === 'ForwardButton') {
+                            node.userData = { type: 'forward' };
+                        } else if (node.name === 'BackwardButton') {
+                            node.userData = { type: 'backward' };
+                        }
                     }
                 });
 
@@ -121,6 +145,41 @@ function init() {
         );
     });
 
+    // Add ambient light to the scene
+    const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
+    scene.add(ambientLight);
+
+    // Add directional light to the scene
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light
+    directionalLight.position.set(5, 10, 7.5);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
+    directionalLight.shadow.camera.left = -10;
+    directionalLight.shadow.camera.right = 10;
+    directionalLight.shadow.camera.top = 10;
+    directionalLight.shadow.camera.bottom = -10;
+    scene.add(directionalLight);
+
+    // Add additional point lights for better illumination
+    const pointLight1 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight1.position.set(50, 50, 50);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight2.position.set(-50, -50, 50);
+    scene.add(pointLight2);
+
+    const pointLight3 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight3.position.set(50, -50, -50);
+    scene.add(pointLight3);
+
+    const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
+    pointLight4.position.set(-50, 50, -50);
+    scene.add(pointLight4);
+
     // Add OrbitControls for navigation
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; // Enable smooth damping
@@ -137,6 +196,81 @@ function init() {
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // Add raycaster for detecting clicks on objects
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function onMouseClick(event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(scene.children, true);
+
+        if (intersects.length > 0) {
+            const object = intersects[0].object;
+            if (object.userData.type) {
+                handleButtonClick(object.userData.type);
+            }
+        }
+    }
+
+    window.addEventListener('click', onMouseClick, false);
+}
+
+function handleButtonClick(type) {
+    switch (type) {
+        case 'play':
+            playAudio(audioFiles[currentAudioIndex]);
+            break;
+        case 'pause':
+            pauseAudio();
+            break;
+        case 'forward':
+            nextAudio();
+            break;
+        case 'backward':
+            previousAudio();
+            break;
+    }
+}
+
+function playAudio(url) {
+    if (!sound) {
+        sound = new THREE.Audio(listener);
+        audioLoader.load(url, function(buffer) {
+            sound.setBuffer(buffer);
+            sound.setLoop(false);
+            sound.setVolume(0.5);
+            sound.play();
+        });
+    } else {
+        if (sound.isPlaying) {
+            sound.stop();
+        }
+        audioLoader.load(url, function(buffer) {
+            sound.setBuffer(buffer);
+            sound.play();
+        });
+    }
+}
+
+function pauseAudio() {
+    if (sound && sound.isPlaying) {
+        sound.pause();
+    }
+}
+
+function nextAudio() {
+    currentAudioIndex = (currentAudioIndex + 1) % audioFiles.length;
+    playAudio(audioFiles[currentAudioIndex]);
+}
+
+function previousAudio() {
+    currentAudioIndex = (currentAudioIndex - 1 + audioFiles.length) % audioFiles.length;
+    playAudio(audioFiles[currentAudioIndex]);
 }
 
 // Animation loop
