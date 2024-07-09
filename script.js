@@ -97,7 +97,7 @@ function init() {
 // Position, scale and rotate the second model
                 model2.position.set(19, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
                 model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = Math.PI / 2; // Rotate to be almost vertical
+                model2.rotation.x = Math.PI / 4; // Rotate to be almost vertical
 
                 // Add a white directional light above the model
                 const light = new THREE.DirectionalLight(0xffffff, 1);
