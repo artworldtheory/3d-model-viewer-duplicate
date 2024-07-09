@@ -9,6 +9,7 @@ let audioFiles = [
     'assets/91_WIP_.mp3'
 ];
 let currentAudioIndex = 0;
+let userInteracted = false;
 
 init();
 animate();
@@ -45,6 +46,7 @@ function init() {
     // Create a renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
@@ -77,7 +79,6 @@ function init() {
                     if (node.isMesh) {
                         node.castShadow = true;
                         node.receiveShadow = true;
-                        // Do not set environment map for this model
                         node.material.needsUpdate = true;
 
                         // Add event listeners to buttons
@@ -93,10 +94,16 @@ function init() {
                     }
                 });
 
-                // Position, scale and rotate the second model
+// Position, scale and rotate the second model
                 model2.position.set(19, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
                 model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = -Math.PI / -9.9; // Rotate downwards slightly
+                model2.rotation.x = -Math.PI / 2; // Rotate to be almost vertical
+
+                // Add a white directional light above the model
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(0, 100, 0); // Position the light above the model
+                light.castShadow = true;
+                scene.add(light);
 
                 scene.add(model2);
 
@@ -202,6 +209,7 @@ function init() {
     const mouse = new THREE.Vector2();
 
     function onMouseClick(event) {
+        userInteracted = true;
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -218,6 +226,29 @@ function init() {
     }
 
     window.addEventListener('click', onMouseClick, false);
+
+    // Handle touch events for mobile
+    function onTouchStart(event) {
+        userInteracted = true;
+        if (event.touches.length === 1) {
+            event.preventDefault();
+            mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(scene.children, true);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (object.userData.type) {
+                    handleButtonClick(object.userData.type);
+                }
+            }
+        }
+    }
+
+    window.addEventListener('touchstart', onTouchStart, false);
 }
 
 function handleButtonClick(type) {
