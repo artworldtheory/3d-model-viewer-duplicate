@@ -22,6 +22,7 @@
 <body>
     <div id="container"></div>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
         let scene, camera, renderer, controls;
@@ -41,6 +42,12 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.getElementById('container').appendChild(renderer.domElement);
 
+            // Ensure OrbitControls is available
+            if (typeof THREE.OrbitControls === 'undefined') {
+                console.error('THREE.OrbitControls is not defined.');
+                return;
+            }
+
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.25;
@@ -54,7 +61,7 @@
             light.position.set(5, 10, 7.5).normalize();
             scene.add(light);
 
-            // Load the GLTF model incrementally
+            // Load the GLTF model
             const loader = new THREE.GLTFLoader();
             loader.load(
                 'assets/sony_gv-8_video_walkman/Buttons2.gltf',
