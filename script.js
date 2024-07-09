@@ -97,7 +97,7 @@ function init() {
 // Position, scale and rotate the second model
                 model2.position.set(19, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
                 model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = Math.PI / 4; // Rotate to be almost vertical
+                model2.rotation.x = Math.PI / 2; // Inverted rotation to correct direction
 
                 // Add a white directional light above the model
                 const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -114,36 +114,6 @@ function init() {
                 const targetPosition = model2.position.clone();
                 targetPosition.y += 4; // Adjust this value to set the target slightly above the model
                 controls.target.copy(targetPosition);
-
-                // Load the additional model
-                loader.load(
-                    'assets/model.gltf',
-                    function(gltf) {
-                        const model = gltf.scene;
-                        model.traverse(function(node) {
-                            if (node.isMesh) {
-                                node.castShadow = true;
-                                node.receiveShadow = true;
-                                node.material.envMap = envMap; // Use environment map
-                                node.material.needsUpdate = true;
-                                console.log(`Loaded mesh: ${node.name}`);
-                            }
-                        });
-
-                        // Position the additional model around the second model
-                        model.position.set(50, 0, 50); // Adjust the position as needed
-                        model.scale.set(0.1, 0.1, 0.1); // Scale down the model by a factor of 0.1 (10 times smaller)
-
-                        scene.add(model);
-
-                        // Check if the additional model is added to the scene
-                        console.log("Additional model loaded and added to the scene");
-                    },
-                    undefined,
-                    function(error) {
-                        console.error('Error loading additional model:', error);
-                    }
-                );
             },
             undefined,
             function(error) {
