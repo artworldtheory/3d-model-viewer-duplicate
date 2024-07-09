@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js with OrbitControls</title>
+    <title>Three.js Model Loading</title>
     <style>
         body, html {
             margin: 0;
@@ -23,6 +23,7 @@
     <div id="container"></div>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
         let scene, camera, renderer, controls;
 
@@ -43,10 +44,24 @@
             controls.maxDistance = 500;
             controls.maxPolarAngle = Math.PI / 2;
 
-            const geometry = new THREE.BoxGeometry();
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            const cube = new THREE.Mesh(geometry, material);
-            scene.add(cube);
+            // Add a basic light
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 10, 7.5).normalize();
+            scene.add(light);
+
+            // Load a GLTF model
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                'path/to/your/model.gltf', // Replace with the correct path to your model
+                function (gltf) {
+                    const model = gltf.scene;
+                    scene.add(model);
+                },
+                undefined,
+                function (error) {
+                    console.error('An error occurred loading the model:', error);
+                }
+            );
 
             animate();
         }
