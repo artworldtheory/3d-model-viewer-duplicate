@@ -14,8 +14,19 @@ let userInteracted = false;
 init();
 animate();
 
+function isWebGLAvailable() {
+    try {
+        const canvas = document.createElement('canvas');
+        return !!window.WebGLRenderingContext && (
+            canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 function init() {
-    if (!THREE.WEBGL.isWebGLAvailable()) {
+    if (!isWebGLAvailable()) {
         alert('WebGL is not available on your browser.');
         return;
     }
