@@ -22,7 +22,6 @@
 <body>
     <div id="container"></div>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
         let scene, camera, renderer, controls;
@@ -55,7 +54,7 @@
             light.position.set(5, 10, 7.5).normalize();
             scene.add(light);
 
-            // Load the GLTF model
+            // Load the GLTF model incrementally
             const loader = new THREE.GLTFLoader();
             loader.load(
                 'assets/sony_gv-8_video_walkman/Buttons2.gltf',
@@ -64,6 +63,9 @@
                     model.position.set(0, 0, 0); // Adjust model position if necessary
                     scene.add(model);
                     console.log('Model loaded successfully');
+
+                    // Load textures incrementally
+                    loadTextures();
                 },
                 undefined,
                 function (error) {
@@ -72,6 +74,29 @@
             );
 
             animate();
+        }
+
+        function loadTextures() {
+            const textureLoader = new THREE.TextureLoader();
+            const textures = [
+                'assets/sony_gv-8_video_walkman/Screen1_baseColor.png',
+                'assets/sony_gv-8_video_walkman/Screen1_normal.png',
+                'assets/sony_gv-8_video_walkman/Screen1_metallicRoughness.png'
+            ];
+
+            textures.forEach((texturePath, index) => {
+                textureLoader.load(
+                    texturePath,
+                    function (texture) {
+                        console.log('Texture loaded:', texturePath);
+                        // Apply the texture to the model or scene as needed
+                    },
+                    undefined,
+                    function (error) {
+                        console.error('An error occurred loading the texture:', texturePath, error);
+                    }
+                );
+            });
         }
 
         function animate() {
