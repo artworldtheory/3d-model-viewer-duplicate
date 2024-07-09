@@ -37,7 +37,7 @@ function init() {
 
     // Create a scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000); // Set the scene background to black
+    scene.background = new THREE.Color(0xffffff); // Set the scene background to white
 
     // Create a camera
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -94,16 +94,26 @@ function init() {
                     }
                 });
 
-// Position, scale and rotate the second model
+                // Position, scale and rotate the second model
                 model2.position.set(19, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
                 model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = Math.PI / 2; // Inverted rotation to correct direction
+                model2.rotation.x = Math.PI / 3; // Adjusted rotation to be less vertical
 
-                // Add a white directional light above the model
-                const light = new THREE.DirectionalLight(0xffffff, 1);
-                light.position.set(0, 100, 0); // Position the light above the model
-                light.castShadow = true;
-                scene.add(light);
+                // Add a spotlight above the model
+                const spotlight = new THREE.SpotLight(0xffffff, 1);
+                spotlight.position.set(0, 100, 0); // Position the light above the model
+                spotlight.castShadow = true;
+                spotlight.angle = Math.PI / 4;
+                spotlight.penumbra = 0.1;
+                spotlight.decay = 2;
+                spotlight.distance = 200;
+
+                spotlight.shadow.mapSize.width = 1024;
+                spotlight.shadow.mapSize.height = 1024;
+                spotlight.shadow.camera.near = 10;
+                spotlight.shadow.camera.far = 200;
+
+                scene.add(spotlight);
 
                 scene.add(model2);
 
