@@ -1,14 +1,6 @@
 let camera, scene, renderer, controls;
 let prevTime = performance.now();
 let initialZoomComplete = false;
-let audioLoader, listener, sound;
-let audioFiles = [
-    'assets/11_WIP_.mp3',
-    'assets/86_WIP_.mp3',
-    'assets/90 V1_WIP_.mp3',
-    'assets/91_WIP_.mp3'
-];
-let currentAudioIndex = 0;
 let userInteracted = false;
 
 init();
@@ -38,7 +30,6 @@ function init() {
             console.log("All assets loaded");
             const loadingScreen = document.getElementById('loading-screen');
             loadingScreen.style.display = 'none';
-            alert('All assets loaded');
         },
         // Progress callback
         (url, itemsLoaded, itemsTotal) => {
@@ -69,122 +60,11 @@ function init() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.getElementById('container').appendChild(renderer.domElement);
 
-    // Create audio listener and loader
-    listener = new THREE.AudioListener();
-    camera.add(listener);
-    audioLoader = new THREE.AudioLoader();
-
-    // PMREMGenerator for environment maps
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
-
-    // Load HDR environment map
-    const rgbeLoader = new THREE.RGBELoader(loadingManager);
-    rgbeLoader.setDataType(THREE.UnsignedByteType);
-    rgbeLoader.load('assets/metro_noord_1k.hdr', function(texture) {
-        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-        scene.environment = envMap;
-        texture.dispose();
-        pmremGenerator.dispose();
-
-        // Load the new model (Buttons2.gltf)
-        const loader = new THREE.GLTFLoader(loadingManager);
-        loader.load(
-            'assets/sony_gv-8_video_walkman/Buttons2.gltf',
-            function(gltf2) {
-                const model2 = gltf2.scene;
-                model2.traverse(function(node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                        node.material.needsUpdate = true;
-
-                        // Add event listeners to buttons
-                        if (node.name === 'PlayButton') {
-                            node.userData = { type: 'play' };
-                        } else if (node.name === 'PauseButton') {
-                            node.userData = { type: 'pause' };
-                        } else if (node.name === 'ForwardButton') {
-                            node.userData = { type: 'forward' };
-                        } else if (node.name === 'BackwardButton') {
-                            node.userData = { type: 'backward' };
-                        }
-                    }
-                });
-
-                // Position, scale and rotate the second model
-                model2.position.set(19, 3, 50); // Adjusted: Set initial position to the origin and move up slightly
-                model2.scale.set(100, 100, 100); // Scale down the second model slightly
-                model2.rotation.x = Math.PI / 3; // Adjusted rotation to be less vertical
-
-                // Add a spotlight above the model
-                const spotlight = new THREE.SpotLight(0xffffff, 1);
-                spotlight.position.set(0, 100, 0); // Position the light above the model
-                spotlight.castShadow = true;
-                spotlight.angle = Math.PI / 4;
-                spotlight.penumbra = 0.1;
-                spotlight.decay = 2;
-                spotlight.distance = 200;
-
-                spotlight.shadow.mapSize.width = 1024;
-                spotlight.shadow.mapSize.height = 1024;
-                spotlight.shadow.camera.near = 10;
-                spotlight.shadow.camera.far = 200;
-
-                scene.add(spotlight);
-
-                scene.add(model2);
-
-                // Check if the second model is added to the scene
-                console.log("Second model loaded and added to the scene");
-
-                // Set the camera's target to slightly above the center of the second model
-                const targetPosition = model2.position.clone();
-                targetPosition.y += 4; // Adjust this value to set the target slightly above the model
-                controls.target.copy(targetPosition);
-            },
-            undefined,
-            function(error) {
-                console.error('Error loading second model:', error);
-                alert('Error loading second model');
-            }
-        );
-    });
-
-    // Add ambient light to the scene
-    const ambientLight = new THREE.AmbientLight(0x888888, 1); // Change to plain grey light
-    scene.add(ambientLight);
-
-    // Add directional light to the scene
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light
-    directionalLight.position.set(5, 10, 7.5);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
-    directionalLight.shadow.camera.left = -10;
-    directionalLight.shadow.camera.right = 10;
-    directionalLight.shadow.camera.top = 10;
-    directionalLight.shadow.camera.bottom = -10;
-    scene.add(directionalLight);
-
-    // Add additional point lights for better illumination
-    const pointLight1 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight1.position.set(50, 50, 50);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight2.position.set(-50, -50, 50);
-    scene.add(pointLight2);
-
-    const pointLight3 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight3.position.set(50, -50, -50);
-    scene.add(pointLight3);
-
-    const pointLight4 = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight4.position.set(-50, 50, -50);
-    scene.add(pointLight4);
+    // Add a basic cube to the scene
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
 
     // Add OrbitControls for navigation
     controls = new THREE.OrbitControls(camera, renderer.domElement);
