@@ -15,6 +15,11 @@ init();
 animate();
 
 function init() {
+    if (!THREE.WEBGL.isWebGLAvailable()) {
+        alert('WebGL is not available on your browser.');
+        return;
+    }
+
     // Create a loading manager
     const loadingManager = new THREE.LoadingManager(
         // Loaded callback
@@ -22,6 +27,7 @@ function init() {
             console.log("All assets loaded");
             const loadingScreen = document.getElementById('loading-screen');
             loadingScreen.style.display = 'none';
+            alert('All assets loaded');
         },
         // Progress callback
         (url, itemsLoaded, itemsTotal) => {
@@ -32,6 +38,7 @@ function init() {
         // Error callback
         (url) => {
             console.error(`There was an error loading ${url}`);
+            alert(`Error loading ${url}`);
         }
     );
 
@@ -128,6 +135,7 @@ function init() {
             undefined,
             function(error) {
                 console.error('Error loading second model:', error);
+                alert('Error loading second model');
             }
         );
     });
@@ -255,7 +263,9 @@ function playAudio(url) {
             sound.setBuffer(buffer);
             sound.setLoop(false);
             sound.setVolume(0.5);
-            sound.play();
+            if (userInteracted) {
+                sound.play();
+            }
         });
     } else {
         if (sound.isPlaying) {
@@ -263,7 +273,9 @@ function playAudio(url) {
         }
         audioLoader.load(url, function(buffer) {
             sound.setBuffer(buffer);
-            sound.play();
+            if (userInteracted) {
+                sound.play();
+            }
         });
     }
 }
