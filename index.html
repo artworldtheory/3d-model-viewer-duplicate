@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js Simplified Loading</title>
+    <title>Three.js Incremental Loading</title>
     <style>
         body, html {
             margin: 0;
@@ -64,15 +64,18 @@
             // Load a simple GLTF model
             const loader = new THREE.GLTFLoader();
             loader.load(
-                'path/to/simple/model.gltf', // Use a simpler model
+                'assets/sony_gv-8_video_walkman/Buttons2.gltf', // Use the simpler model or keep the original path
                 function (gltf) {
                     const model = gltf.scene;
                     model.position.set(0, 0, 0); // Adjust model position if necessary
                     scene.add(model);
-                    console.log('Simple model loaded successfully');
+                    console.log('Model loaded successfully');
 
                     // Start monitoring memory usage
                     monitorMemory();
+
+                    // Load textures incrementally
+                    loadTextures();
                 },
                 undefined,
                 function (error) {
@@ -81,6 +84,29 @@
             );
 
             animate();
+        }
+
+        function loadTextures() {
+            const textureLoader = new THREE.TextureLoader();
+            const textures = [
+                'assets/sony_gv-8_video_walkman/Screen1_baseColor.png',
+                'assets/sony_gv-8_video_walkman/Screen1_normal.png',
+                'assets/sony_gv-8_video_walkman/Screen1_metallicRoughness.png'
+            ];
+
+            textures.forEach((texturePath, index) => {
+                textureLoader.load(
+                    texturePath,
+                    function (texture) {
+                        console.log('Texture loaded:', texturePath);
+                        // Apply the texture to the model or scene as needed
+                    },
+                    undefined,
+                    function (error) {
+                        console.error('An error occurred loading the texture:', texturePath, error);
+                    }
+                );
+            });
         }
 
         function monitorMemory() {
